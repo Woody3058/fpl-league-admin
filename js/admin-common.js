@@ -21,7 +21,7 @@ async function requireAdminLogin() {
         );
 
         window.location.href =
-            "login.html";
+            "index.html";
 
         return false;
 
@@ -31,7 +31,7 @@ async function requireAdminLogin() {
     if (!data.session) {
 
         window.location.href =
-            "login.html";
+            "index.html";
 
         return false;
 
@@ -48,7 +48,7 @@ async function logoutAdmin() {
     await supabaseClient.auth.signOut();
 
     window.location.href =
-        "login.html";
+        "index.html";
 
 }
 
