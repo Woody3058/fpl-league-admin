@@ -1,8 +1,6 @@
 
 let playerPageSeason = null;
-
 let playerPagePlayers = [];
-
 
 // ==========================================
 // STARTUP
@@ -134,7 +132,6 @@ async function startupPlayers() {
 
 }
 
-
 // ==========================================
 // LOAD PLAYERS
 // ==========================================
@@ -157,7 +154,6 @@ async function loadPlayers() {
     );
 
 }
-
 
 // ==========================================
 // RENDER PLAYERS

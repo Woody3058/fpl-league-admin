@@ -1,57 +1,34 @@
 
-//getAdminActiveSeason()
-//getAdminSeasonPlayers()
-
 async function getAdminActiveSeason() {
 
-    const {
-        data,
-        error
-    } =
+    console.log("admin-data.js: getAdminActiveSeason Called");
+
+    const {data, error} =
         await supabaseClient
             .from("seasons")
             .select("*")
             .eq("active", true)
             .single();
 
-
     if (error)
         throw error;
 
-
     return {
-
-        id:
-            data.id,
-
-        name:
-            data.name,
-
-        seasonCode:
-            data.season_code,
-
-        totalGameweeks:
-            data.total_gameweeks,
-
-        currentGameweek:
-            data.current_gameweek,
-
-        active:
-            data.active
-
+        id: data.id,
+        name: data.name,
+        seasonCode: data.season_code,
+        totalGameweeks: data.total_gameweeks,
+        currentGameweek: data.current_gameweek,
+        active: data.active
     };
 
 }
 
+async function getAdminSeasonPlayers(seasonId) {
 
-async function getAdminSeasonPlayers(
-    seasonId
-) {
+    console.log("admin-data.js: getAdminSeasonPlayers Called");
 
-    const {
-        data,
-        error
-    } =
+    const {data, error} =
         await supabaseClient
             .from("season_players")
             .select(`
@@ -61,40 +38,23 @@ async function getAdminSeasonPlayers(
                 fpl_team_name,
                 active,
                 display_order,
-                players (
-                    id,
-                    name
-                )
+                players (id, name)
             `)
-            .eq(
-                "season_id",
-                seasonId
-            )
-            .eq(
-                "active",
-                true
-            )
-            .order(
-                "display_order"
-            );
-
+            .eq("season_id", seasonId)
+            .eq("active",true)
+            .order("display_order");
 
     if (error)
         throw error;
 
-
     return data;
-
 }
 
-async function getAdminAllSeasonPlayers(
-    seasonId
-) {
+async function getAdminAllSeasonPlayers(seasonId) {
 
-    const {
-        data,
-        error
-    } =
+    console.log("admin-data.js: getAdminAllSeasonPlayers Called");
+
+    const {data, error} =
         await supabaseClient
             .from("season_players")
             .select(`
@@ -103,144 +63,74 @@ async function getAdminAllSeasonPlayers(
                 fpl_entry_id,
                 fpl_team_name,
                 active,
-                players (
-                    id,
-                    name
-                )
+                players (id, name)
             `)
-            .eq(
-                "season_id",
-                seasonId
-            );
-
+            .eq("season_id", seasonId);
 
     if (error)
         throw error;
 
+    return data.sort((a, b) => {
+            const nameA = a.players?.name ?? "";
 
-    return data.sort(
-        (a, b) => {
-
-            const nameA =
-                a.players?.name ??
-                "";
-
-            const nameB =
-                b.players?.name ??
-                "";
-
+            const nameB = b.players?.name ??"";
 
             return nameA.localeCompare(
                 nameB
             );
-
         }
     );
-
 }
 
+async function getAdminGameweekScores(seasonId, gameweek) {
 
-async function getAdminGameweekScores(
-    seasonId,
-    gameweek
-) {
+    console.log("admin-data.js: getAdminGameweekScores Called");
 
-    const {
-        data,
-        error
-    } =
+    const {data, error} =
         await supabaseClient
             .from("gameweek_scores")
             .select("*")
-            .eq(
-                "season_id",
-                seasonId
-            )
-            .eq(
-                "gameweek",
-                gameweek
-            );
-
+            .eq("season_id", seasonId)
+            .eq("gameweek", gameweek);
 
     if (error)
         throw error;
 
-
     return data;
-
 }
 
-async function saveAdminGameweekScore(
-    seasonId,
-    playerId,
-    gameweek,
-    adjustment,
-    note
-) {
+async function saveAdminGameweekScore(seasonId, playerId, gameweek, adjustment, note) {
 
-    const {
-        data: existing,
-        error: existingError
-    } =
+    console.log("admin-data.js: saveAdminGameweekScore Called");
+
+    const {data: existing, error: existingError} =
         await supabaseClient
             .from("gameweek_scores")
-            .select(`
-                id,
-                fpl_points
-            `)
-            .eq(
-                "season_id",
-                seasonId
-            )
-            .eq(
-                "player_id",
-                playerId
-            )
-            .eq(
-                "gameweek",
-                gameweek
-            )
+            .select(`id, fpl_points`)
+            .eq("season_id", seasonId)
+            .eq("player_id", playerId)
+            .eq("gameweek", gameweek)
             .maybeSingle();
-
 
     if (existingError)
         throw existingError;
-
 
     // ==========================================
     // EXISTING SCORE
     // ==========================================
 
     if (existing) {
-
-        const {
-            error
-        } =
+        const {error} =
             await supabaseClient
                 .from("gameweek_scores")
-                .update({
-
-                    adjustment:
-                        adjustment,
-
-                    note:
-                        note
-
-                })
-                .eq(
-                    "id",
-                    existing.id
-                );
-
+                .update({adjustment: adjustment, note: note})
+                .eq("id", existing.id);
 
         if (error)
             throw error;
 
-
         return;
-
     }
-
 
     // ==========================================
     // NEW SCORE RECORD

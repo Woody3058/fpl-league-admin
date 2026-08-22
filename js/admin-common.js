@@ -1,129 +1,66 @@
 
 async function requireAdminLogin() {
 
-    console.log(
-        "admin-common.js: requireAdminLogin Called"
-    );
+    console.log("admin-common.js: requireAdminLogin Called");
 
-
-    const {
-        data,
-        error
-    } =
-        await supabaseClient.auth.getSession();
-
+    const {data, error} = await supabaseClient.auth.getSession();
 
     if (error) {
-
-        console.error(
-            "Session error:",
-            error
-        );
-
-        window.location.href =
-            "index.html";
-
+        console.error("Session error:", error);
+        window.location.href = "index.html";
         return false;
-
     }
 
-
-    if (!data.session) {
-
-        window.location.href =
-            "index.html";
-
+    if (!data.session) {window.location.href = "index.html";
         return false;
-
     }
-
-
     return true;
-
 }
-
 
 async function logoutAdmin() {
 
+    console.log("admin-common.js: logoutAdmin Called");
+
     await supabaseClient.auth.signOut();
 
-    window.location.href =
-        "index.html";
-
+    window.location.href = "index.html";
 }
 
 function setupAdminLogout() {
 
-    const button =
-        document.getElementById(
-            "logoutButton"
-        );
+    console.log("admin-common.js: setupAdminLogout Called");
 
+    const button = document.getElementById("logoutButton");
 
     if (!button)
         return;
 
-
-    button.addEventListener(
-        "click",
-        logoutAdmin
-    );
-
+    button.addEventListener("click", logoutAdmin);
 }
 
+function setActiveAdminNavigation(page) {
 
-function setActiveAdminNavigation(
-    page
-) {
+    console.log("admin-common.js: setActiveAdminNavigation Called");
 
     const links = {
-
         scores:
-            document.getElementById(
-                "scoresNavLink"
-            ),
-
+            document.getElementById("scoresNavLink"),
         players:
-            document.getElementById(
-                "playersNavLink"
-            ),
-
+            document.getElementById("playersNavLink"),
         seasons:
-            document.getElementById(
-                "seasonsNavLink"
-            )
-
+            document.getElementById("seasonsNavLink")
     };
 
-
-    Object.values(
-        links
-    )
-        .forEach(
-            link => {
-
+    Object.values(links)
+        .forEach(link => {
                 if (link) {
-
-                    link.classList.remove(
-                        "admin-nav-active"
-                    );
-
+                    link.classList.remove("admin-nav-active");
                 }
-
             }
         );
 
-
-    if (
-        links[page]
-    ) {
-
-        links[
-            page
-        ].classList.add(
-            "admin-nav-active"
-        );
-
+    if (links[page]) {
+        links[page].classList.add("admin-nav-active");
     }
 
 }
