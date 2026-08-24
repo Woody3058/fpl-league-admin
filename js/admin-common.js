@@ -48,7 +48,11 @@ function setActiveAdminNavigation(page) {
         players:
             document.getElementById("playersNavLink"),
         seasons:
-            document.getElementById("seasonsNavLink")
+            document.getElementById("seasonsNavLink"),
+        prizes:
+            document.getElementById(
+                "prizesNavLink"
+            )
     };
 
     Object.values(links)

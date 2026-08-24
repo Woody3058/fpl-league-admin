@@ -982,3 +982,108 @@ async function activateAdminSeason(
         throw error;
 
 }
+
+async function loadPrizeSettings(
+    seasonId
+) {
+
+    console.log(
+        "admin-data.js: loadPrizeSettings Called",
+        seasonId
+    );
+
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from(
+                "season_prize_settings"
+            )
+            .select(`
+                season_id,
+                entry_fee,
+                overall_percent,
+                period_percent,
+                highest_gameweek_percent,
+                captain_percent
+            `)
+            .eq(
+                "season_id",
+                seasonId
+            )
+            .maybeSingle();
+
+
+    if (error)
+        throw error;
+
+
+    return data;
+
+}
+
+async function savePrizeSettings(
+    seasonId,
+    settings
+) {
+
+    console.log(
+        "admin-data.js: savePrizeSettings Called",
+        seasonId
+    );
+
+
+    const record = {
+
+        season_id:
+            seasonId,
+
+        entry_fee:
+            settings.entryFee,
+
+        overall_percent:
+            settings.overallPercent,
+
+        period_percent:
+            settings.periodPercent,
+
+        highest_gameweek_percent:
+            settings.highestGameweekPercent,
+
+        captain_percent:
+            settings.captainPercent,
+
+        updated_at:
+            new Date().toISOString()
+
+    };
+
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from(
+                "season_prize_settings"
+            )
+            .upsert(
+                record,
+                {
+                    onConflict:
+                        "season_id"
+                }
+            )
+            .select()
+            .single();
+
+
+    if (error)
+        throw error;
+
+
+    return data;
+
+}

@@ -1,0 +1,391 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        FA Cuck FPL Admin - Prize Settings
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="css/admin.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<header class="admin-header">
+
+    <h1>
+        FA Cuck FPL League Admin
+    </h1>
+
+    <button
+        id="logoutButton"
+        type="button"
+    >
+        Logout
+    </button>
+
+</header>
+
+
+<nav class="admin-navigation">
+
+    <a
+        href="scores.html"
+        id="scoresNavLink"
+    >
+        Scores
+    </a>
+
+    <a
+        href="players.html"
+        id="playersNavLink"
+    >
+        Players
+    </a>
+
+    <a
+        href="seasons.html"
+        id="seasonsNavLink"
+    >
+        Seasons
+    </a>
+
+    <a
+        href="prizes.html"
+        id="prizesNavLink"
+    >
+        Prize Settings
+    </a>
+
+</nav>
+
+
+<main class="admin-main">
+
+
+    <section class="admin-panel">
+
+        <div class="admin-panel-header">
+
+            <div>
+
+                <h2>
+                    Prize Settings
+                </h2>
+
+                <p class="page-description">
+                    Configure the entry fee and prize split
+                    for the active season.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- ==================================
+             ACTIVE SEASON
+             ================================== -->
+
+        <section class="prize-settings-summary">
+
+            <h3>
+                Active Season
+            </h3>
+
+
+            <div class="prize-settings-summary-grid">
+
+                <div>
+
+                    <span>
+                        Season
+                    </span>
+
+                    <strong
+                        id="prizeSeasonName"
+                    >
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Active Players
+                    </span>
+
+                    <strong
+                        id="prizePlayerCount"
+                    >
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Prize Pot
+                    </span>
+
+                    <strong
+                        id="prizePot"
+                    >
+                        £0.00
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ==================================
+             SETTINGS
+             ================================== -->
+
+        <section class="prize-settings-form">
+
+            <h3>
+                Prize Structure
+            </h3>
+
+
+            <div class="form-row">
+
+                <label for="entryFee">
+                    Entry Fee (£)
+                </label>
+
+                <input
+                    type="number"
+                    id="entryFee"
+                    min="0"
+                    step="0.01"
+                >
+
+            </div>
+
+
+            <div class="form-row">
+
+                <label for="overallPercent">
+                    Overall Winner (%)
+                </label>
+
+                <input
+                    type="number"
+                    id="overallPercent"
+                    min="0"
+                    max="100"
+                    step="0.01"
+                >
+
+            </div>
+
+
+            <div class="form-row">
+
+                <label for="periodPercent">
+                    Period Competition (%)
+                </label>
+
+                <input
+                    type="number"
+                    id="periodPercent"
+                    min="0"
+                    max="100"
+                    step="0.01"
+                >
+
+            </div>
+
+
+            <div class="form-row">
+
+                <label for="highestGameweekPercent">
+                    Highest Gameweek (%)
+                </label>
+
+                <input
+                    type="number"
+                    id="highestGameweekPercent"
+                    min="0"
+                    max="100"
+                    step="0.01"
+                >
+
+            </div>
+
+
+            <div class="form-row">
+
+                <label for="captainPercent">
+                    Captain Prize (%)
+                </label>
+
+                <input
+                    type="number"
+                    id="captainPercent"
+                    min="0"
+                    max="100"
+                    step="0.01"
+                >
+
+            </div>
+
+
+            <div class="prize-percent-total">
+
+                Total:
+
+                <strong
+                    id="prizePercentTotal"
+                >
+                    0%
+                </strong>
+
+            </div>
+
+
+            <button
+                id="savePrizeSettingsButton"
+                type="button"
+            >
+                Save Prize Settings
+            </button>
+
+
+            <div
+                id="prizeSettingsMessage"
+            >
+            </div>
+
+        </section>
+
+
+        <!-- ==================================
+             LIVE PREVIEW
+             ================================== -->
+
+        <section class="prize-preview-section">
+
+            <h3>
+                Prize Preview
+            </h3>
+
+
+            <div class="prize-preview-grid">
+
+                <div>
+
+                    <span>
+                        Overall Winner
+                    </span>
+
+                    <strong
+                        id="previewOverall"
+                    >
+                        £0.00
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Period Fund
+                    </span>
+
+                    <strong
+                        id="previewPeriodFund"
+                    >
+                        £0.00
+                    </strong>
+
+                    <small
+                        id="previewPeriodEach"
+                    >
+                        £0.00 per period
+                    </small>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Highest Gameweek
+                    </span>
+
+                    <strong
+                        id="previewHighestGameweek"
+                    >
+                        £0.00
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        Captain Prize
+                    </span>
+
+                    <strong
+                        id="previewCaptain"
+                    >
+                        £0.00
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+    </section>
+
+
+</main>
+
+
+<script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+></script>
+
+<script src="js/supabase.js"></script>
+
+<script src="js/admin-common.js"></script>
+
+<script src="js/admin-data.js"></script>
+
+<script src="js/prizes.js"></script>
+
+
+</body>
+
+</html>
