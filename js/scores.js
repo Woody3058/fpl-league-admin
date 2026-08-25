@@ -3,6 +3,8 @@ let scorePageSeason = null;
 
 let scorePagePlayers = [];
 
+let fplPlayerLookup = {};
+
 
 // ==========================================
 // STARTUP
@@ -14,8 +16,9 @@ async function startupScores() {
         "scores.js: startupScores Called"
     );
 
+
     const loggedIn =
-    await requireAdminLogin();
+        await requireAdminLogin();
 
 
     if (!loggedIn)
@@ -26,14 +29,11 @@ async function startupScores() {
         "scores"
     );
 
+
     setupAdminLogout();
 
+
     try {
-
-        setActiveAdminNavigation(
-            "scores"
-        );
-
 
         // ======================================
         // ACTIVE SEASON
@@ -41,6 +41,14 @@ async function startupScores() {
 
         scorePageSeason =
             await getAdminActiveSeason();
+
+
+        document
+            .getElementById(
+                "scoreSeasonName"
+            )
+            .textContent =
+            scorePageSeason.name;
 
 
         // ======================================
@@ -92,6 +100,7 @@ async function startupScores() {
                 }
             );
 
+
         document
             .getElementById(
                 "importFplButton"
@@ -99,6 +108,16 @@ async function startupScores() {
             .addEventListener(
                 "click",
                 handleFplImport
+            );
+
+
+        document
+            .getElementById(
+                "importCaptainDataButton"
+            )
+            .addEventListener(
+                "click",
+                importCaptainData
             );
 
 
@@ -115,13 +134,6 @@ async function startupScores() {
         );
 
     }
-
-    document
-        .getElementById(
-            "scoreSeasonName"
-        )
-        .textContent =
-            scorePageSeason.name;
 
 }
 
@@ -669,6 +681,52 @@ async function updateCurrentGameweekFromFpl() {
             return false;
         }
 
+
+
+
+
+        if (
+            Array.isArray(
+                result.data?.players
+            )
+        ) {
+
+            fplPlayerLookup =
+                {};
+
+
+            result.data.players.forEach(
+                player => {
+
+                    fplPlayerLookup[
+                        player.id
+                    ] = {
+
+                        id:
+                            player.id,
+
+                        name:
+                            player.web_name
+
+                    };
+
+                }
+            );
+
+
+            console.log(
+                "FPL player lookup loaded:",
+                Object.keys(
+                    fplPlayerLookup
+                ).length
+            );
+
+        }
+
+
+
+
+
         // ==========================================
         // GET ACTIVE SEASON
         // ==========================================
@@ -772,11 +830,15 @@ async function importFplPlayer(
         const {
             data: season,
             error: seasonError
-        } = await supabaseClient
-            .from("seasons")
-            .select("*")
-            .eq("active", true)
-            .single();
+        } =
+            await supabaseClient
+                .from("seasons")
+                .select("*")
+                .eq(
+                    "active",
+                    true
+                )
+                .single();
 
 
         if (seasonError)
@@ -787,176 +849,169 @@ async function importFplPlayer(
         // GET FPL HISTORY
         // ==========================================
 
+        let data =
+            null;
+
+        let lastError =
+            null;
 
 
+        for (
+            let attempt = 1;
+            attempt <= 5;
+            attempt++
+        ) {
+
+            try {
+
+                console.log(
+                    `FPL request attempt ${attempt} for ${entryId}`
+                );
 
 
-let data = null;
-let lastError = null;
+                const result =
+                    await supabaseClient.functions.invoke(
+                        "fpl-history",
+                        {
+                            body: {
 
+                                entryId:
+                                    entryId
 
-for (
-    let attempt = 1;
-    attempt <= 5;
-    attempt++
-) {
-
-    try {
-
-        console.log(
-            `FPL request attempt ${attempt} for ${entryId}`
-        );
-
-
-        const result =
-            await supabaseClient.functions.invoke(
-                "fpl-history",
-                {
-                    body: {
-                        entryId: entryId
-                    }
-                }
-            );
-
-
-        if (result.error) {
-
-            // Try to read the function response body
-
-            if (
-                result.error.context
-            ) {
-
-                try {
-
-                    const errorBody =
-                        await result.error
-                            .context
-                            .clone()
-                            .json();
-
-
-                    console.warn(
-                        "Edge Function response body:",
-                        errorBody
+                            }
+                        }
                     );
 
+
+                if (result.error) {
+
+                    // ----------------------------------
+                    // TRY TO READ FUNCTION ERROR BODY
+                    // ----------------------------------
+
+                    if (
+                        result.error.context
+                    ) {
+
+                        try {
+
+                            const errorBody =
+                                await result.error
+                                    .context
+                                    .clone()
+                                    .json();
+
+
+                            console.warn(
+                                "Edge Function response body:",
+                                errorBody
+                            );
+
+                        }
+                        catch {
+
+                            // Ignore response parsing errors
+
+                        }
+
+                    }
+
+
+                    throw result.error;
+
                 }
-                catch {
-                    // Ignore parsing errors
+
+
+                data =
+                    result.data;
+
+
+                console.log(
+                    `FPL request succeeded for ${entryId} on attempt ${attempt}`
+                );
+
+
+                break;
+
+            }
+            catch(error) {
+
+                lastError =
+                    error;
+
+
+                console.warn(
+                    `FPL request failed for ${entryId}, attempt ${attempt}`,
+                    error
+                );
+
+
+                if (
+                    attempt < 5
+                ) {
+
+                    // ----------------------------------
+                    // EXPONENTIAL BACKOFF
+                    // ----------------------------------
+
+                    const delay =
+                        2000 *
+                        Math.pow(
+                            2,
+                            attempt - 1
+                        );
+
+
+                    const jitter =
+                        Math.floor(
+                            Math.random() *
+                            1000
+                        );
+
+
+                    const waitTime =
+                        delay +
+                        jitter;
+
+
+                    console.log(
+                        `Waiting ${waitTime} ms before retry...`
+                    );
+
+
+                    await new Promise(
+                        resolve =>
+                            setTimeout(
+                                resolve,
+                                waitTime
+                            )
+                    );
+
                 }
 
             }
 
-
-            throw result.error;
-
         }
 
-
-        data =
-            result.data;
-
-
-        console.log(
-            `FPL request succeeded for ${entryId} on attempt ${attempt}`
-        );
-
-
-        break;
-
-    }
-    catch(error) {
-
-        lastError =
-            error;
-
-
-        console.warn(
-            `FPL request failed for ${entryId}, attempt ${attempt}`,
-            error
-        );
-
-
-        if (
-            attempt < 5
-        ) {
-
-            // Exponential backoff:
-            //
-            // attempt 1 -> 2 sec
-            // attempt 2 -> 4 sec
-            // attempt 3 -> 8 sec
-            // attempt 4 -> 16 sec
-
-            const delay =
-                2000 *
-                Math.pow(
-                    2,
-                    attempt - 1
-                );
-
-
-            // Add a little randomness so requests
-            // don't all happen at exact intervals.
-
-            const jitter =
-                Math.floor(
-                    Math.random() *
-                    1000
-                );
-
-
-            const waitTime =
-                delay +
-                jitter;
-
-            
-            //console.clear();
-
-            console.log(
-                `Waiting ${waitTime} ms before retry...`
-            );
-
-
-            await new Promise(
-                resolve =>
-                    setTimeout(
-                        resolve,
-                        waitTime
-                    )
-            );
-
-        }
-
-    }
-
-}
-
-
-if (!data) {
-
-    throw (
-        lastError ??
-        new Error(
-            "FPL request failed after retries"
-        )
-    );
-
-}
 
         if (!data) {
 
-            throw lastError ??
+            throw (
+                lastError ??
                 new Error(
-                    "FPL request failed"
-                );
+                    "FPL request failed after retries"
+                )
+            );
 
         }
 
-        //console.clear();
 
-        console.log("FPL history received for:",playerName, data);
+        console.log(
+            "FPL history received for:",
+            playerName,
+            data
+        );
+
 
         // ==========================================
         // GET CURRENT SEASON HISTORY
@@ -965,25 +1020,21 @@ if (!data) {
         const history =
             data.current;
 
+
         if (
-            !Array.isArray(history) ||
+            !Array.isArray(
+                history
+            ) ||
             history.length === 0
         ) {
 
-        //console.clear();
+            console.log(
+                "No completed FPL gameweeks for",
+                playerName
+            );
 
-            console.log("No completed FPL gameweeks for", playerName);
 
             return false;
-
-        }
-
-
-        if (!Array.isArray(history)) {
-
-            throw new Error(
-                "FPL response does not contain current history"
-            );
 
         }
 
@@ -998,7 +1049,9 @@ if (!data) {
         // IMPORT EACH GAMEWEEK
         // ==========================================
 
-        for (const gw of history) {
+        for (
+            const gw of history
+        ) {
 
             console.log(
                 "Importing GW",
@@ -1007,16 +1060,23 @@ if (!data) {
                 gw.points
             );
 
+            // ======================================
+            // CHECK EXISTING SCORE
+            // ======================================
 
             const {
                 data: existing,
                 error: existingError
             } =
                 await supabaseClient
-                    .from("gameweek_scores")
-                    .select(
-                        "id, adjustment, note"
+                    .from(
+                        "gameweek_scores"
                     )
+                    .select(`
+                        id,
+                        adjustment,
+                        note
+                    `)
                     .eq(
                         "season_id",
                         season.id
@@ -1036,11 +1096,11 @@ if (!data) {
                 throw existingError;
 
 
-            if (existing) {
+            // ======================================
+            // EXISTING RECORD
+            // ======================================
 
-                // ----------------------------------
-                // UPDATE FPL POINTS ONLY
-                // ----------------------------------
+            if (existing) {
 
                 const {
                     error: updateError
@@ -1065,11 +1125,12 @@ if (!data) {
                     throw updateError;
 
             }
-            else {
 
-                // ----------------------------------
-                // CREATE NEW RECORD
-                // ----------------------------------
+            // ======================================
+            // NEW RECORD
+            // ======================================
+
+            else {
 
                 const {
                     error: insertError
@@ -1110,23 +1171,25 @@ if (!data) {
 
 
         console.log(
-            "FPL import complete"
+            "FPL import complete for:",
+            playerName
         );
 
 
         return true;
 
     }
-        catch(error) {
+    catch(error) {
 
-            console.error(
-                "FPL import failed:",
-                error
-            );
+        console.error(
+            "FPL import failed:",
+            error
+        );
 
-            throw error;
 
-        }
+        throw error;
+
+    }
 
 }
 
@@ -1266,6 +1329,21 @@ async function importAllFplPlayers() {
         if (playersError)
             throw playersError;
 
+        // ==========================================
+        // LOAD FPL PLAYER LOOKUP
+        // ==========================================
+
+        /*const fplPlayerLookup =
+            await getFplPlayerLookup();*/
+
+
+        // ==========================================
+        // GAMEWEEK LIVE DATA CACHE
+        // ==========================================
+
+        //const gameweekLiveCache =
+        //    {};
+
 
         // ==========================================
         // COUNTERS
@@ -1332,12 +1410,12 @@ async function importAllFplPlayers() {
 
             try {
 
-                const success =
-                    await importFplPlayer(
-                        player.player_id,
-                        player.fpl_entry_id,
-                        playerName
-                    );
+            const success =
+                await importFplPlayer(
+                    player.player_id,
+                    player.fpl_entry_id,
+                    player.playerName                  
+                );
 
 
                 if (success) {
@@ -1413,10 +1491,10 @@ async function importAllFplPlayers() {
                 );
 
             const playerDelay =
-                1500 +
+                3000 +
                 Math.floor(
                     Math.random() *
-                    1500
+                    2000
                 );
 
 
@@ -1490,11 +1568,12 @@ async function importAllFplPlayers() {
 
                 try {
 
-                    const success =
-                        await importFplPlayer(
-                            player.playerId,
-                            player.entryId
-                        );
+                const success =
+                    await importFplPlayer(
+                        player.playerId,
+                        player.entryId,
+                        player.playerName
+                    );
 
 
                     if (success) {
@@ -1676,6 +1755,13 @@ async function handleFplImport() {
 
     showFplImportStatus();
 
+    document
+        .getElementById(
+            "fplImportStatusTitle"
+        )
+        .textContent =
+        "FPL Score Import";
+
 
     try {
 
@@ -1749,6 +1835,1120 @@ async function handleFplImport() {
 
         button.textContent =
             "Import FPL Scores";
+
+    }
+
+}
+
+/*async function getFplPlayerLookup() {
+
+    console.log(
+        "scores.js: getFplPlayerLookup Called"
+    );
+
+
+    const result =
+        await supabaseClient.functions.invoke(
+            "fpl-history",
+            {
+                body: {
+                    requestType:
+                        "bootstrapPlayers"
+                }
+            }
+        );
+
+
+    if (result.error) {
+
+        if (
+            result.error.context
+        ) {
+
+            try {
+
+                const errorBody =
+                    await result.error
+                        .context
+                        .clone()
+                        .json();
+
+
+                console.error(
+                    "bootstrapPlayers Edge Function response:",
+                    errorBody
+                );
+
+            }
+            catch(error) {
+
+                console.error(
+                    "Unable to read bootstrapPlayers error body:",
+                    error
+                );
+
+            }
+
+        }
+
+
+        throw result.error;
+
+    }
+
+
+    console.log(
+        "Bootstrap players received:",
+        result.data.length
+    );
+
+
+    const lookup =
+        {};
+
+
+    result.data.forEach(
+        player => {
+
+            lookup[
+                player.id
+            ] = {
+
+                id:
+                    player.id,
+
+                name:
+                    player.web_name
+
+            };
+
+        }
+    );
+
+
+    return lookup;
+
+}*/
+
+
+async function importCaptainData() {
+
+    console.log(
+        "scores.js: importCaptainData Called"
+    );
+
+
+    showFplImportStatus();
+
+
+    const statusTitle =
+        document.getElementById(
+            "fplImportStatusTitle"
+        );
+
+
+    if (statusTitle) {
+
+        statusTitle.textContent =
+            "Captain Import";
+
+    }
+
+
+    updateFplImportSummary(
+        "Preparing captain import..."
+    );
+
+
+    try {
+
+        // ==========================================
+        // GET ACTIVE SEASON
+        // ==========================================
+
+        const {
+            data: season,
+            error: seasonError
+        } =
+            await supabaseClient
+                .from("seasons")
+                .select("*")
+                .eq(
+                    "active",
+                    true
+                )
+                .single();
+
+
+        if (seasonError)
+            throw seasonError;
+
+
+        // ==========================================
+        // GET ACTIVE PLAYERS
+        // ==========================================
+
+        const {
+            data: seasonPlayers,
+            error: playersError
+        } =
+            await supabaseClient
+                .from("season_players")
+                .select(`
+                    player_id,
+                    fpl_entry_id,
+                    players (
+                        name
+                    )
+                `)
+                .eq(
+                    "season_id",
+                    season.id
+                )
+                .eq(
+                    "active",
+                    true
+                );
+
+
+        if (playersError)
+            throw playersError;
+
+
+        // ==========================================
+        // GET SCORE ROWS
+        // ==========================================
+
+        const {
+            data: scoreRows,
+            error: scoreError
+        } =
+            await supabaseClient
+                .from("gameweek_scores")
+                .select(`
+                    id,
+                    player_id,
+                    gameweek,
+                    captain_name,
+                    captain_points,
+                    captain_multiplier
+                `)
+                .eq(
+                    "season_id",
+                    season.id
+                );
+
+
+        if (scoreError)
+            throw scoreError;
+
+
+        // ==========================================
+        // GET FPL PLAYER LOOKUP
+        // ==========================================
+
+        const playerLookup =
+            {};
+
+
+        try {
+
+            updateFplImportSummary(
+                "Loading FPL player information..."
+            );
+
+
+            const lookupResult =
+                await supabaseClient.functions.invoke(
+                    "fpl-history",
+                    {
+                        body: {
+                            requestType:
+                                "currentGameweek"
+                        }
+                    }
+                );
+
+
+            if (
+                lookupResult.error
+            ) {
+
+                if (
+                    lookupResult.error.context
+                ) {
+
+                    try {
+
+                        const errorBody =
+                            await lookupResult.error
+                                .context
+                                .clone()
+                                .json();
+
+
+                        console.warn(
+                            "Player lookup Edge Function response:",
+                            errorBody
+                        );
+
+                    }
+                    catch {
+                        // Ignore parsing errors
+                    }
+
+                }
+
+
+                throw lookupResult.error;
+
+            }
+
+
+            (
+                lookupResult.data.players ??
+                []
+            )
+                .forEach(
+                    player => {
+
+                        playerLookup[
+                            player.id
+                        ] = {
+
+                            id:
+                                player.id,
+
+                            name:
+                                player.web_name
+
+                        };
+
+                    }
+                );
+
+
+            console.log(
+                "FPL player lookup loaded:",
+                Object.keys(
+                    playerLookup
+                ).length
+            );
+
+        }
+        catch(error) {
+
+            console.warn(
+                "Unable to load FPL player names. Captain import will continue.",
+                error
+            );
+
+        }
+
+
+        // ==========================================
+        // LIVE GAMEWEEK DATA CACHE
+        // ==========================================
+
+        const gameweekLiveCache =
+            {};
+
+
+        // ==========================================
+        // BUILD CAPTAIN IMPORT JOBS
+        // ==========================================
+
+        let pendingJobs =
+            [];
+
+
+        let initiallySkipped =
+            0;
+
+
+        seasonPlayers.forEach(
+            player => {
+
+                const playerName =
+                    player.players?.name ??
+                    `Player ${player.player_id}`;
+
+
+                if (
+                    !player.fpl_entry_id
+                ) {
+
+                    initiallySkipped++;
+
+
+                    updateFplPlayerStatus(
+                        player.player_id,
+                        playerName,
+                        "skipped",
+                        "No FPL Entry ID"
+                    );
+
+
+                    return;
+
+                }
+
+
+                const playerRows =
+                    scoreRows.filter(
+                        row =>
+                            row.player_id ===
+                            player.player_id
+                    );
+
+
+                playerRows.forEach(
+                    row => {
+
+                        // ==================================
+                        // ALREADY POPULATED
+                        // ==================================
+
+                        if (
+                            row.captain_name &&
+                            row.captain_multiplier
+                        ) {
+
+                            initiallySkipped++;
+
+
+                            updateFplPlayerStatus(
+                                player.player_id,
+                                playerName,
+                                "skipped",
+                                `GW${row.gameweek} captain already imported`
+                            );
+
+
+                            return;
+
+                        }
+
+
+                        // ==================================
+                        // ADD IMPORT JOB
+                        // ==================================
+
+                        pendingJobs.push({
+
+                            rowId:
+                                row.id,
+
+                            playerId:
+                                player.player_id,
+
+                            entryId:
+                                player.fpl_entry_id,
+
+                            playerName:
+                                playerName,
+
+                            gameweek:
+                                row.gameweek
+
+                        });
+
+                    }
+                );
+
+            }
+        );
+
+
+        // ==========================================
+        // NOTHING TO IMPORT
+        // ==========================================
+
+        if (
+            pendingJobs.length === 0
+        ) {
+
+            updateFplImportSummary(
+                "Captain import complete — all captain data is already populated."
+            );
+
+
+            return;
+
+        }
+
+
+        // ==========================================
+        // COUNTERS
+        // ==========================================
+
+        let imported =
+            0;
+
+
+        const maxPasses =
+            3;
+
+
+        // ==========================================
+        // MULTI-PASS IMPORT
+        // ==========================================
+
+        for (
+            let pass = 1;
+            pass <= maxPasses;
+            pass++
+        ) {
+
+            if (
+                pendingJobs.length === 0
+            ) {
+
+                break;
+
+            }
+
+
+            updateFplImportSummary(
+                `Captain import pass ${pass} — ${pendingJobs.length} remaining`
+            );
+
+
+            console.log(
+                "================================="
+            );
+
+            console.log(
+                `CAPTAIN IMPORT PASS ${pass}`
+            );
+
+            console.log(
+                `Pending: ${pendingJobs.length}`
+            );
+
+            console.log(
+                "================================="
+            );
+
+
+            // ======================================
+            // RANDOMISE RETRY ORDER
+            // ======================================
+
+            pendingJobs =
+                [...pendingJobs]
+                    .sort(
+                        () =>
+                            Math.random() -
+                            0.5
+                    );
+
+
+            const failedJobs =
+                [];
+
+
+            // ======================================
+            // PROCESS THIS PASS
+            // ======================================
+
+            for (
+                const job of pendingJobs
+            ) {
+
+                updateFplPlayerStatus(
+                    job.playerId,
+                    job.playerName,
+                    "importing",
+                    `GW${job.gameweek} captain — pass ${pass}`
+                );
+
+
+                try {
+
+                    // ==================================
+                    // GET CAPTAIN PICK
+                    // ==================================
+
+                    const captainResult =
+                        await supabaseClient.functions.invoke(
+                            "fpl-history",
+                            {
+                                body: {
+
+                                    requestType:
+                                        "captainPick",
+
+                                    entryId:
+                                        job.entryId,
+
+                                    gameweek:
+                                        job.gameweek
+
+                                }
+                            }
+                        );
+
+
+                    if (
+                        captainResult.error
+                    ) {
+
+                        if (
+                            captainResult.error.context
+                        ) {
+
+                            try {
+
+                                const errorBody =
+                                    await captainResult.error
+                                        .context
+                                        .clone()
+                                        .json();
+
+
+                                console.warn(
+                                    `Captain response for ${job.playerName} GW${job.gameweek}:`,
+                                    errorBody
+                                );
+
+                            }
+                            catch {
+                                // Ignore parsing errors
+                            }
+
+                        }
+
+
+                        throw captainResult.error;
+
+                    }
+
+
+                    const captainData =
+                        captainResult.data;
+
+
+                    const captainElementId =
+                        Number(
+                            captainData.elementId
+                        );
+
+
+                    const captainMultiplier =
+                        Number(
+                            captainData.multiplier
+                        );
+
+
+                    const captainName =
+                        playerLookup[
+                            captainElementId
+                        ]?.name ??
+                        null;
+
+
+                    // ==================================
+                    // GET / CACHE LIVE GAMEWEEK DATA
+                    // ==================================
+
+                    let liveData =
+                        gameweekLiveCache[
+                            job.gameweek
+                        ];
+
+
+                    if (!liveData) {
+
+                        const liveResult =
+                            await supabaseClient.functions.invoke(
+                                "fpl-history",
+                                {
+                                    body: {
+
+                                        requestType:
+                                            "gameweekPlayerData",
+
+                                        gameweek:
+                                            job.gameweek
+
+                                    }
+                                }
+                            );
+
+
+                        if (
+                            liveResult.error
+                        ) {
+
+                            throw liveResult.error;
+
+                        }
+
+
+                        liveData =
+                            liveResult.data;
+
+
+                        gameweekLiveCache[
+                            job.gameweek
+                        ] =
+                            liveData;
+
+                    }
+
+
+                    // ==================================
+                    // FIND CAPTAIN SCORE
+                    // ==================================
+
+                    const livePlayer =
+                        liveData.find(
+                            item =>
+                                item.id ===
+                                captainElementId
+                        );
+
+
+                    const basePoints =
+                        Number(
+                            livePlayer?.stats
+                                ?.total_points
+                        ) || 0;
+
+
+                    const captainPoints =
+                        basePoints *
+                        captainMultiplier;
+
+
+                    // ==================================
+                    // UPDATE DATABASE
+                    // ==================================
+
+                    const {
+                        error: updateError
+                    } =
+                        await supabaseClient
+                            .from(
+                                "gameweek_scores"
+                            )
+                            .update({
+
+                                captain_name:
+                                    captainName,
+
+                                captain_points:
+                                    captainPoints,
+
+                                captain_multiplier:
+                                    captainMultiplier
+
+                            })
+                            .eq(
+                                "id",
+                                job.rowId
+                            );
+
+
+                    if (
+                        updateError
+                    ) {
+
+                        throw updateError;
+
+                    }
+
+
+                    imported++;
+
+
+                    updateFplPlayerStatus(
+                        job.playerId,
+                        job.playerName,
+                        "success",
+                        `GW${job.gameweek}: ` +
+                        `${captainName ?? "Captain"} ` +
+                        `(${captainPoints} pts)`
+                    );
+
+
+                    console.log(
+                        `${job.playerName} GW${job.gameweek}:`,
+                        captainName,
+                        captainPoints,
+                        captainMultiplier
+                    );
+
+                }
+                catch(error) {
+
+                    console.warn(
+                        `Captain import failed for ${job.playerName} GW${job.gameweek}`,
+                        error
+                    );
+
+
+                    failedJobs.push(
+                        job
+                    );
+
+
+                    if (
+                        pass <
+                        maxPasses
+                    ) {
+
+                        updateFplPlayerStatus(
+                            job.playerId,
+                            job.playerName,
+                            "retry",
+                            `GW${job.gameweek} failed — queued for pass ${pass + 1}`
+                        );
+
+                    }
+                    else {
+
+                        updateFplPlayerStatus(
+                            job.playerId,
+                            job.playerName,
+                            "failed",
+                            `GW${job.gameweek} captain import failed`
+                        );
+
+                    }
+
+                }
+
+
+                // ==================================
+                // SHORT DELAY
+                // ==================================
+
+                await new Promise(
+                    resolve =>
+                        setTimeout(
+                            resolve,
+                            1500 +
+                            Math.floor(
+                                Math.random() *
+                                1000
+                            )
+                        )
+                );
+
+            }
+
+
+            pendingJobs =
+                failedJobs;
+
+
+            // ======================================
+            // WAIT BEFORE RETRY PASS
+            // ======================================
+
+            if (
+                pendingJobs.length > 0 &&
+                pass < maxPasses
+            ) {
+
+                updateFplImportSummary(
+                    `Pass ${pass} complete — ` +
+                    `${pendingJobs.length} failed. ` +
+                    `Waiting before retry...`
+                );
+
+
+                await new Promise(
+                    resolve =>
+                        setTimeout(
+                            resolve,
+                            10000
+                        )
+                );
+
+            }
+
+        }
+
+
+        // ==========================================
+        // FINAL SUMMARY
+        // ==========================================
+
+        const failed =
+            pendingJobs.length;
+
+
+        updateFplImportSummary(
+
+            `Captain import complete — ` +
+
+            `Imported: ${imported}, ` +
+
+            `Skipped: ${initiallySkipped}, ` +
+
+            `Failed: ${failed}`
+
+        );
+
+
+        console.log(
+            "Captain import complete:",
+            {
+                imported,
+                skipped:
+                    initiallySkipped,
+                failed
+            }
+        );
+
+
+        if (
+            failed > 0
+        ) {
+
+            console.log(
+                "Remaining captain failures:"
+            );
+
+
+            pendingJobs.forEach(
+                job => {
+
+                    console.log(
+                        `${job.playerName} GW${job.gameweek}`
+                    );
+
+                }
+            );
+
+        }
+
+    }
+    catch(error) {
+
+        console.error(
+            "Captain import failed:",
+            error
+        );
+
+
+        updateFplImportSummary(
+            "Captain import failed."
+        );
+
+    }
+
+}
+
+
+
+async function testCaptainPick(
+    entryId,
+    gameweek
+) {
+
+    console.log(
+        "Testing captain pick:",
+        entryId,
+        gameweek
+    );
+
+
+    try {
+
+        const result =
+            await supabaseClient.functions.invoke(
+                "fpl-history",
+                {
+                    body: {
+
+                        requestType:
+                            "captainPick",
+
+                        entryId:
+                            entryId,
+
+                        gameweek:
+                            gameweek
+
+                    }
+                }
+            );
+
+
+        if (result.error) {
+
+            if (
+                result.error.context
+            ) {
+
+                try {
+
+                    const errorBody =
+                        await result.error
+                            .context
+                            .clone()
+                            .json();
+
+
+                    console.warn(
+                        "Captain Edge Function response body:",
+                        errorBody
+                    );
+
+                }
+                catch(error) {
+
+                    console.warn(
+                        "Unable to read Edge Function error body:",
+                        error
+                    );
+
+                }
+
+            }
+
+
+            throw result.error;
+
+        }
+
+
+        console.log(
+            "Captain pick response:",
+            result.data
+        );
+
+
+        return result.data;
+
+    }
+    catch(error) {
+
+        console.error(
+            "Captain pick test failed:",
+            error
+        );
+
+
+        return null;
+
+    }
+
+}
+
+async function testGameweekPlayerData(
+    gameweek,
+    elementId
+) {
+
+    console.log(
+        "Testing gameweek player data:",
+        gameweek,
+        elementId
+    );
+
+
+    try {
+
+        const result =
+            await supabaseClient.functions.invoke(
+                "fpl-history",
+                {
+                    body: {
+
+                        requestType:
+                            "gameweekPlayerData",
+
+                        gameweek:
+                            gameweek
+
+                    }
+                }
+            );
+
+
+        if (result.error) {
+
+            if (
+                result.error.context
+            ) {
+
+                try {
+
+                    const errorBody =
+                        await result.error
+                            .context
+                            .clone()
+                            .json();
+
+
+                    console.warn(
+                        "Gameweek player data error:",
+                        errorBody
+                    );
+
+                }
+                catch(error) {
+
+                    console.warn(
+                        "Unable to read error response:",
+                        error
+                    );
+
+                }
+
+            }
+
+
+            throw result.error;
+
+        }
+
+
+        // ======================================
+        // FIND PLAYER
+        // ======================================
+
+        const player =
+            result.data.find(
+                item =>
+                    item.id ===
+                    elementId
+            );
+
+
+        console.log(
+            "Gameweek player:",
+            player
+        );
+
+
+        if (player) {
+
+            console.log(
+                "GW points:",
+                player.stats?.total_points
+            );
+
+        }
+
+
+        return player;
+
+    }
+    catch(error) {
+
+        console.error(
+            "Gameweek player data test failed:",
+            error
+        );
+
+
+        return null;
 
     }
 
