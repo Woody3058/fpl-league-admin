@@ -1980,9 +1980,6 @@ async function importCaptainData() {
     );
 
 
-    //showFplImportStatus();
-
-
     const statusTitle =
         document.getElementById(
             "fplImportStatusTitle"
@@ -2013,7 +2010,9 @@ async function importCaptainData() {
             error: seasonError
         } =
             await supabaseClient
-                .from("seasons")
+                .from(
+                    "seasons"
+                )
                 .select("*")
                 .eq(
                     "active",
@@ -2035,7 +2034,9 @@ async function importCaptainData() {
             error: playersError
         } =
             await supabaseClient
-                .from("season_players")
+                .from(
+                    "season_players"
+                )
                 .select(`
                     player_id,
                     fpl_entry_id,
@@ -2066,7 +2067,9 @@ async function importCaptainData() {
             error: scoreError
         } =
             await supabaseClient
-                .from("gameweek_scores")
+                .from(
+                    "gameweek_scores"
+                )
                 .select(`
                     id,
                     player_id,
@@ -2086,80 +2089,152 @@ async function importCaptainData() {
 
 
         // ==========================================
+        // GET EXISTING CHIP DATA
+        // ==========================================
+
+        const {
+            data: chipRows,
+            error: chipError
+        } =
+            await supabaseClient
+                .from(
+                    "player_chips"
+                )
+                .select(`
+                    id,
+                    player_id,
+                    gameweek,
+                    chip
+                `)
+                .eq(
+                    "season_id",
+                    season.id
+                );
+
+
+        if (chipError)
+            throw chipError;
+
+
+        // ==========================================
         // GET FPL PLAYER LOOKUP
+        // ==========================================
+        //
+        // Captain names come from bootstrap-static.
+        // Do NOT continue if this lookup fails.
         // ==========================================
 
         const playerLookup =
             {};
 
 
-        try {
-
-            updateFplImportSummary(
-                "Loading FPL player information..."
-            );
+        let lookupLoaded =
+            false;
 
 
-            const lookupResult =
-                await supabaseClient.functions.invoke(
-                    "fpl-history",
-                    {
-                        body: {
-                            requestType:
-                                "currentGameweek"
-                        }
-                    }
+        const lookupAttempts =
+            3;
+
+
+        for (
+            let attempt = 1;
+            attempt <= lookupAttempts;
+            attempt++
+        ) {
+
+            try {
+
+                updateFplImportSummary(
+                    `Loading FPL player information — attempt ${attempt}...`
                 );
 
 
-            if (
-                lookupResult.error
-            ) {
+                console.log(
+                    `FPL player lookup attempt ${attempt}`
+                );
+
+
+                const lookupResult =
+                    await supabaseClient.functions.invoke(
+                        "fpl-history",
+                        {
+                            body: {
+
+                                requestType:
+                                    "currentGameweek"
+
+                            }
+                        }
+                    );
+
 
                 if (
-                    lookupResult.error.context
+                    lookupResult.error
                 ) {
 
-                    try {
+                    if (
+                        lookupResult.error.context
+                    ) {
 
-                        const errorBody =
-                            await lookupResult.error
-                                .context
-                                .clone()
-                                .json();
+                        try {
+
+                            const errorBody =
+                                await lookupResult.error
+                                    .context
+                                    .clone()
+                                    .json();
 
 
-                        console.warn(
-                            "Player lookup Edge Function response:",
-                            errorBody
-                        );
+                            console.warn(
+                                "Player lookup Edge Function response:",
+                                errorBody
+                            );
+
+                        }
+                        catch {
+                            // Ignore response parsing errors
+                        }
 
                     }
-                    catch {
-                        // Ignore parsing errors
-                    }
+
+
+                    throw lookupResult.error;
 
                 }
 
 
-                throw lookupResult.error;
+                const fplPlayers =
+                    lookupResult.data?.players ??
+                    [];
 
-            }
+
+                if (
+                    !Array.isArray(
+                        fplPlayers
+                    ) ||
+                    fplPlayers.length === 0
+                ) {
+
+                    throw new Error(
+                        "FPL player lookup returned no players"
+                    );
+
+                }
 
 
-            (
-                lookupResult.data.players ??
-                []
-            )
-                .forEach(
+                fplPlayers.forEach(
                     player => {
 
                         playerLookup[
-                            player.id
+                            Number(
+                                player.id
+                            )
                         ] = {
 
                             id:
-                                player.id,
+                                Number(
+                                    player.id
+                                ),
 
                             name:
                                 player.web_name
@@ -2170,19 +2245,64 @@ async function importCaptainData() {
                 );
 
 
-            console.log(
-                "FPL player lookup loaded:",
-                Object.keys(
-                    playerLookup
-                ).length
-            );
+                lookupLoaded =
+                    true;
+
+
+                console.log(
+                    "FPL player lookup loaded:",
+                    Object.keys(
+                        playerLookup
+                    ).length
+                );
+
+
+                break;
+
+            }
+            catch(error) {
+
+                console.warn(
+                    `FPL player lookup failed on attempt ${attempt}:`,
+                    error
+                );
+
+
+                if (
+                    attempt <
+                    lookupAttempts
+                ) {
+
+                    updateFplImportSummary(
+                        `FPL player lookup failed — retrying...`
+                    );
+
+
+                    await new Promise(
+                        resolve =>
+                            setTimeout(
+                                resolve,
+                                3000
+                            )
+                    );
+
+                }
+
+            }
 
         }
-        catch(error) {
 
-            console.warn(
-                "Unable to load FPL player names. Captain import will continue.",
-                error
+
+        // ==========================================
+        // LOOKUP IS REQUIRED
+        // ==========================================
+
+        if (
+            !lookupLoaded
+        ) {
+
+            throw new Error(
+                "Unable to load FPL player names. Captain import stopped."
             );
 
         }
@@ -2216,6 +2336,10 @@ async function importCaptainData() {
                     `Player ${player.player_id}`;
 
 
+                // ==================================
+                // NO FPL ENTRY ID
+                // ==================================
+
                 if (
                     !player.fpl_entry_id
                 ) {
@@ -2247,13 +2371,42 @@ async function importCaptainData() {
                 playerRows.forEach(
                     row => {
 
+                        /*const existingChip =
+                            chipRows.find(
+                                chipRow =>
+
+                                    chipRow.player_id ===
+                                        player.player_id &&
+
+                                    chipRow.gameweek ===
+                                        row.gameweek
+                            );*/
+
+
+                        const captainAlreadyImported =
+                            Boolean(
+                                row.captain_name &&
+                                row.captain_multiplier
+                            );
+
+
+                        /*const chipAlreadyImported =
+                            Boolean(
+                                existingChip
+                            );*/
+
+
                         // ==================================
-                        // ALREADY POPULATED
+                        // SKIP ALREADY COMPLETE ROWS
+                        // ==================================
+                        //
+                        // During the current chip backfill,
+                        // a player with captain data but no
+                        // chip record is checked again.
                         // ==================================
 
                         if (
-                            row.captain_name &&
-                            row.captain_multiplier
+                            captainAlreadyImported
                         ) {
 
                             initiallySkipped++;
@@ -2263,7 +2416,7 @@ async function importCaptainData() {
                                 player.player_id,
                                 playerName,
                                 "skipped",
-                                `GW${row.gameweek} captain already imported`
+                                `GW${row.gameweek} already imported`
                             );
 
 
@@ -2409,7 +2562,7 @@ async function importCaptainData() {
                 try {
 
                     // ==================================
-                    // GET CAPTAIN PICK
+                    // GET CAPTAIN PICK + CHIP
                     // ==================================
 
                     const captainResult =
@@ -2456,7 +2609,7 @@ async function importCaptainData() {
 
                             }
                             catch {
-                                // Ignore parsing errors
+                                // Ignore response parsing errors
                             }
 
                         }
@@ -2471,6 +2624,25 @@ async function importCaptainData() {
                         captainResult.data;
 
 
+                    // ==================================
+                    // CHIP
+                    // ==================================
+
+                    const activeChip =
+                        captainData.activeChip ??
+                        null;
+
+
+                    const chip =
+                        mapFplChip(
+                            activeChip
+                        );
+
+
+                    // ==================================
+                    // CAPTAIN ID / MULTIPLIER
+                    // ==================================
+
                     const captainElementId =
                         Number(
                             captainData.elementId
@@ -2483,11 +2655,44 @@ async function importCaptainData() {
                         );
 
 
-                    const captainName =
+                    if (
+                        !Number.isInteger(
+                            captainElementId
+                        ) ||
+                        captainElementId <= 0
+                    ) {
+
+                        throw new Error(
+                            `Invalid captain element ID for ${job.playerName}`
+                        );
+
+                    }
+
+
+                    // ==================================
+                    // CAPTAIN NAME
+                    // ==================================
+
+                    const captainPlayer =
                         playerLookup[
                             captainElementId
-                        ]?.name ??
-                        null;
+                        ];
+
+
+                    if (
+                        !captainPlayer ||
+                        !captainPlayer.name
+                    ) {
+
+                        throw new Error(
+                            `Unable to resolve captain element ${captainElementId} for ${job.playerName}`
+                        );
+
+                    }
+
+
+                    const captainName =
+                        captainPlayer.name;
 
 
                     // ==================================
@@ -2532,6 +2737,19 @@ async function importCaptainData() {
                             liveResult.data;
 
 
+                        if (
+                            !Array.isArray(
+                                liveData
+                            )
+                        ) {
+
+                            throw new Error(
+                                `Invalid live FPL data for GW${job.gameweek}`
+                            );
+
+                        }
+
+
                         gameweekLiveCache[
                             job.gameweek
                         ] =
@@ -2547,14 +2765,25 @@ async function importCaptainData() {
                     const livePlayer =
                         liveData.find(
                             item =>
-                                item.id ===
+                                Number(
+                                    item.id
+                                ) ===
                                 captainElementId
                         );
 
 
+                    if (!livePlayer) {
+
+                        throw new Error(
+                            `Captain ${captainName} not found in GW${job.gameweek} live data`
+                        );
+
+                    }
+
+
                     const basePoints =
                         Number(
-                            livePlayer?.stats
+                            livePlayer.stats
                                 ?.total_points
                         ) || 0;
 
@@ -2565,7 +2794,72 @@ async function importCaptainData() {
 
 
                     // ==================================
-                    // UPDATE DATABASE
+                    // SAVE CHIP FIRST
+                    // ==================================
+                    //
+                    // If a real chip was used and the
+                    // chip save fails, don't mark the
+                    // captain row complete. That lets
+                    // the job retry on the next pass.
+                    // ==================================
+
+                    if (chip) {
+
+                        const {
+                            error: chipSaveError
+                        } =
+                            await supabaseClient
+                                .from(
+                                    "player_chips"
+                                )
+                                .upsert(
+                                    {
+
+                                        season_id:
+                                            season.id,
+
+                                        player_id:
+                                            job.playerId,
+
+                                        gameweek:
+                                            job.gameweek,
+
+                                        chip:
+                                            chip
+
+                                    },
+                                    {
+                                        onConflict:
+                                            "season_id,player_id,gameweek"
+                                    }
+                                );
+
+
+                        if (
+                            chipSaveError
+                        ) {
+
+                            console.error(
+                                `Unable to save chip for ${job.playerName} GW${job.gameweek}:`,
+                                chipSaveError
+                            );
+
+
+                            throw chipSaveError;
+
+                        }
+
+
+                        console.log(
+                            `${job.playerName} GW${job.gameweek} chip saved:`,
+                            chip
+                        );
+
+                    }
+
+
+                    // ==================================
+                    // UPDATE CAPTAIN DATABASE FIELDS
                     // ==================================
 
                     const {
@@ -2602,16 +2896,32 @@ async function importCaptainData() {
                     }
 
 
+                    // ==================================
+                    // SUCCESS
+                    // ==================================
+
                     imported++;
+
+
+                    let statusText =
+                        `GW${job.gameweek}: ` +
+                        `${captainName} ` +
+                        `(${captainPoints} pts)`;
+
+
+                    if (chip) {
+
+                        statusText +=
+                            ` · ${chip}`;
+
+                    }
 
 
                     updateFplPlayerStatus(
                         job.playerId,
                         job.playerName,
                         "success",
-                        `GW${job.gameweek}: ` +
-                        `${captainName ?? "Captain"} ` +
-                        `(${captainPoints} pts)`
+                        statusText
                     );
 
 
@@ -2619,14 +2929,15 @@ async function importCaptainData() {
                         `${job.playerName} GW${job.gameweek}:`,
                         captainName,
                         captainPoints,
-                        captainMultiplier
+                        captainMultiplier,
+                        chip
                     );
 
                 }
                 catch(error) {
 
                     console.warn(
-                        `Captain import failed for ${job.playerName} GW${job.gameweek}`,
+                        `FPL captain data unavailable for ${job.playerName} GW${job.gameweek}:`,
                         error
                     );
 
@@ -2651,12 +2962,12 @@ async function importCaptainData() {
                     }
                     else {
 
-                        updateFplPlayerStatus(
-                            job.playerId,
-                            job.playerName,
-                            "failed",
-                            `GW${job.gameweek} captain import failed`
-                        );
+                    updateFplPlayerStatus(
+                        job.playerId,
+                        job.playerName,
+                        "failed",
+                        `GW${job.gameweek} unavailable from FPL — retry later`
+                    );
 
                     }
 
@@ -2768,6 +3079,11 @@ async function importCaptainData() {
 
         }
 
+
+        // ==========================================
+        // UPDATE CAPTAIN IMPORT TIMESTAMP
+        // ==========================================
+
         const captainImportTime =
             new Date().toISOString();
 
@@ -2776,7 +3092,9 @@ async function importCaptainData() {
             error: timestampError
         } =
             await supabaseClient
-                .from("seasons")
+                .from(
+                    "seasons"
+                )
                 .update({
 
                     captains_last_imported_at:
@@ -2789,8 +3107,13 @@ async function importCaptainData() {
                 );
 
 
-        if (timestampError)
+        if (
+            timestampError
+        ) {
+
             throw timestampError;
+
+        }
 
 
         scorePageSeason.captains_last_imported_at =
@@ -2811,7 +3134,10 @@ async function importCaptainData() {
 
 
         updateFplImportSummary(
-            "Captain import failed."
+            `Captain import failed — ${
+                error?.message ??
+                "Unknown error"
+            }`
         );
 
     }
@@ -2954,6 +3280,33 @@ function formatImportTimestamp(
                 value
             )
         );
+
+}
+
+function mapFplChip(
+    activeChip
+) {
+
+    switch (
+        activeChip
+    ) {
+
+        case "wildcard":
+            return "WC";
+
+        case "freehit":
+            return "FH";
+
+        case "bboost":
+            return "BB";
+
+        case "3xc":
+            return "TC";
+
+        default:
+            return activeChip ?? null;
+
+    }
 
 }
 

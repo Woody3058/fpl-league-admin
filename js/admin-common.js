@@ -45,14 +45,14 @@ function setActiveAdminNavigation(page) {
     const links = {
         scores:
             document.getElementById("scoresNavLink"),
+        chips:
+            document.getElementById("chipsNavLink"),
         players:
             document.getElementById("playersNavLink"),
         seasons:
             document.getElementById("seasonsNavLink"),
         prizes:
-            document.getElementById(
-                "prizesNavLink"
-            )
+            document.getElementById("prizesNavLink")
     };
 
     Object.values(links)

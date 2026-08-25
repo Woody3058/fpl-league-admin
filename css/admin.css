@@ -328,6 +328,74 @@ input[type="checkbox"] {
 
 }
 
+/* ==========================================
+   CHIP OVERVIEW
+   ========================================== */
+
+#chipOverviewTable td:not(:first-child),
+#chipOverviewTable th:not(:first-child) {
+
+    text-align:
+        center;
+
+}
+
+
+.chip-set {
+
+    display:
+        flex;
+
+    justify-content:
+        center;
+
+    align-items:
+        center;
+
+    gap:
+        8px;
+
+    min-height:
+        24px;
+
+}
+
+
+.chip-set + .chip-set {
+
+    margin-top:
+        4px;
+
+    padding-top:
+        4px;
+
+    border-top:
+        1px solid #eee;
+
+}
+
+
+.chip-set span {
+
+    font-size:
+        11px;
+
+    color:
+        #888;
+
+}
+
+
+.chip-set strong {
+
+    min-width:
+        34px;
+
+    font-size:
+        13px;
+
+}
+
 
 /* ==========================================
    BUTTONS

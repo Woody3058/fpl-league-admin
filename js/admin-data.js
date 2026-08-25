@@ -1089,3 +1089,77 @@ async function savePrizeSettings(
     return data;
 
 }
+
+async function getAdminChipData(
+    seasonId,
+    gameweek
+) {
+
+    console.log(
+        "admin-data.js: getAdminChipData Called"
+    );
+
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from(
+                "player_chips"
+            )
+            .select("*")
+            .eq(
+                "season_id",
+                seasonId
+            )
+            .eq(
+                "gameweek",
+                gameweek
+            );
+
+
+    if (error)
+        throw error;
+
+
+    return data ?? [];
+
+}
+
+async function getAdminSeasonChips(
+    seasonId
+) {
+
+    console.log(
+        "admin-data.js: getAdminSeasonChips Called"
+    );
+
+
+    const {
+        data,
+        error
+    } =
+        await supabaseClient
+            .from(
+                "player_chips"
+            )
+            .select(`
+                id,
+                player_id,
+                gameweek,
+                chip
+            `)
+            .eq(
+                "season_id",
+                seasonId
+            );
+
+
+    if (error)
+        throw error;
+
+
+    return data ?? [];
+
+}

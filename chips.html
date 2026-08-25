@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        FA Cuck FPL Admin - Chips
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="css/admin.css?v=1.2"
+    >
+
+</head>
+
+
+<body>
+
+
+<header class="admin-header">
+
+    <h1>
+        FA Cuck FPL League Admin
+    </h1>
+
+    <button
+        id="logoutButton"
+        type="button"
+    >
+        Logout
+    </button>
+
+</header>
+
+
+<nav class="admin-navigation">
+
+    <a
+        href="scores.html"
+        id="scoresNavLink"
+    >
+        Scores
+    </a>
+
+    <a
+        href="chips.html"
+        id="chipsNavLink"
+    >
+        Chips
+    </a>
+
+    <a
+        href="players.html"
+        id="playersNavLink"
+    >
+        Players
+    </a>
+
+    <a
+        href="seasons.html"
+        id="seasonsNavLink"
+    >
+        Seasons
+    </a>
+
+    <a
+        href="prizes.html"
+        id="prizesNavLink"
+    >
+        Prize Settings
+    </a>
+
+</nav>
+
+
+<main class="admin-main">
+
+    <section class="admin-panel">
+
+        <div class="admin-panel-header">
+
+            <h2>
+                Chip Usage -
+                <span id="chipSeasonName">
+                </span>
+            </h2>
+
+        </div>
+
+
+        <div class="table-container">
+
+            <table id="chipOverviewTable">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Player
+                        </th>
+
+                        <th>
+                            Wildcard
+                        </th>
+
+                        <th>
+                            Free Hit
+                        </th>
+
+                        <th>
+                            Bench Boost
+                        </th>
+
+                        <th>
+                            Triple Captain
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+></script>
+
+<script src="js/supabase.js?v=1.2"></script>
+<script src="js/admin-common.js?v=1.2"></script>
+<script src="js/admin-data.js?v=1.2"></script>
+<script src="js/chips.js?v=1.2"></script>
+
+
+</body>
+
+</html>
