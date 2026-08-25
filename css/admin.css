@@ -388,6 +388,54 @@ button:disabled {
 
 }
 
+/* ==========================================
+   TIMESTAMPS
+   ========================================== */
+
+.import-timestamps {
+
+    display:
+        flex;
+
+    gap:
+        24px;
+
+    margin-top:
+        12px;
+
+    font-size:
+        13px;
+
+    color:
+        #666;
+
+}
+
+
+.import-timestamps strong {
+
+    color:
+        #222;
+
+}
+
+
+@media (
+    max-width: 700px
+) {
+
+    .import-timestamps {
+
+        flex-direction:
+            column;
+
+        gap:
+            6px;
+
+    }
+
+}
+
 
 /* ==========================================
    TABLES

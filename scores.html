@@ -110,6 +110,7 @@
                     Import FPL Scores
                 </button>
 
+
                 <button
                     id="importCaptainDataButton"
                     type="button"
@@ -117,6 +118,29 @@
                     Update Captains
                 </button>
 
+            </div>
+
+        </div>
+
+
+        <!-- ==================================
+            IMPORT TIMESTAMPS
+            ================================== -->
+
+        <div class="import-timestamps">
+
+            <div>
+                Scores last updated:
+                <strong id="scoresLastImported">
+                    Never
+                </strong>
+            </div>
+
+            <div>
+                Captains last updated:
+                <strong id="captainsLastImported">
+                    Never
+                </strong>
             </div>
 
         </div>
@@ -179,19 +203,11 @@
 
 </main>
 
-
-<script
-    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
-></script>
-
-<script src="js/supabase.js"></script>
-
-<script src="js/admin-common.js"></script>
-
-<script src="js/admin-data.js"></script>
-
-<script src="js/scores.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/admin-common.js"></script>
+    <script src="js/admin-data.js"></script>
+    <script src="js/scores.js"></script>
 
 </body>
 

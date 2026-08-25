@@ -42,6 +42,10 @@ async function startupScores() {
         scorePageSeason =
             await getAdminActiveSeason();
 
+        renderImportTimestamps(
+            scorePageSeason
+        );
+
 
         document
             .getElementById(
@@ -117,7 +121,7 @@ async function startupScores() {
             )
             .addEventListener(
                 "click",
-                importCaptainData
+                handleCaptainImport
             );
 
 
@@ -1513,7 +1517,8 @@ async function importAllFplPlayers() {
         // SECOND PASS
         // ==========================================
 
-        const finalFailures = [];
+        const finalFailures =
+            [];
 
 
         if (
@@ -1524,24 +1529,21 @@ async function importAllFplPlayers() {
                 "================================="
             );
 
+
             console.log(
                 `First pass completed with ${failedPlayers.length} failures`
             );
+
 
             console.log(
                 "Waiting before second pass..."
             );
 
-            updateFplPlayerStatus(
-                player.playerId,
-                player.playerName,
-                "retry",
-                "Retrying..."
+
+            updateFplImportSummary(
+                `Retrying ${failedPlayers.length} failed player(s)...`
             );
 
-
-            // Give FPL a longer pause before
-            // retrying only the failed accounts
 
             await new Promise(
                 resolve =>
@@ -1561,6 +1563,14 @@ async function importAllFplPlayers() {
                 const player of failedPlayers
             ) {
 
+                updateFplPlayerStatus(
+                    player.playerId,
+                    player.playerName,
+                    "retry",
+                    "Retrying..."
+                );
+
+
                 console.log(
                     `Second-pass retry: ${player.playerName}`
                 );
@@ -1568,24 +1578,25 @@ async function importAllFplPlayers() {
 
                 try {
 
-                const success =
-                    await importFplPlayer(
-                        player.playerId,
-                        player.entryId,
-                        player.playerName
-                    );
+                    const success =
+                        await importFplPlayer(
+                            player.playerId,
+                            player.entryId,
+                            player.playerName
+                        );
 
 
                     if (success) {
 
                         imported++;
 
-                    updateFplPlayerStatus(
-                        player.playerId,
-                        player.playerName,
-                        "success",
-                        "Imported on retry"
-                    );
+
+                        updateFplPlayerStatus(
+                            player.playerId,
+                            player.playerName,
+                            "success",
+                            "Imported on retry"
+                        );
 
 
                         console.log(
@@ -1606,6 +1617,7 @@ async function importAllFplPlayers() {
                         `Second-pass import failed: ${player.playerName}`,
                         error
                     );
+
 
                     updateFplPlayerStatus(
                         player.playerId,
@@ -1633,9 +1645,6 @@ async function importAllFplPlayers() {
 
                 }
 
-
-                // Slightly slower between second-pass
-                // requests
 
                 const retryDelay =
                     2500 +
@@ -1815,6 +1824,39 @@ async function handleFplImport() {
             gameweek
         );
 
+        const scoreImportTime =
+            new Date().toISOString();
+
+
+        const {
+            error: timestampError
+        } =
+            await supabaseClient
+                .from("seasons")
+                .update({
+
+                    scores_last_imported_at:
+                        scoreImportTime
+
+                })
+                .eq(
+                    "id",
+                    scorePageSeason.id
+                );
+
+
+        if (timestampError)
+            throw timestampError;
+
+
+        scorePageSeason.scores_last_imported_at =
+            scoreImportTime;
+
+
+        renderImportTimestamps(
+            scorePageSeason
+        );
+
     }
     catch(error) {
 
@@ -1938,7 +1980,7 @@ async function importCaptainData() {
     );
 
 
-    showFplImportStatus();
+    //showFplImportStatus();
 
 
     const statusTitle =
@@ -2726,6 +2768,39 @@ async function importCaptainData() {
 
         }
 
+        const captainImportTime =
+            new Date().toISOString();
+
+
+        const {
+            error: timestampError
+        } =
+            await supabaseClient
+                .from("seasons")
+                .update({
+
+                    captains_last_imported_at:
+                        captainImportTime
+
+                })
+                .eq(
+                    "id",
+                    scorePageSeason.id
+                );
+
+
+        if (timestampError)
+            throw timestampError;
+
+
+        scorePageSeason.captains_last_imported_at =
+            captainImportTime;
+
+
+        renderImportTimestamps(
+            scorePageSeason
+        );
+
     }
     catch(error) {
 
@@ -2740,6 +2815,145 @@ async function importCaptainData() {
         );
 
     }
+
+}
+
+async function handleCaptainImport() {
+
+    console.log(
+        "scores.js: handleCaptainImport Called"
+    );
+
+
+    const button =
+        document.getElementById(
+            "importCaptainDataButton"
+        );
+
+
+    button.disabled =
+        true;
+
+
+    button.innerHTML = `
+
+        <span
+            class="fpl-spinner"
+        ></span>
+
+        Updating...
+
+    `;
+
+
+    showFplImportStatus();
+
+
+    const statusTitle =
+        document.getElementById(
+            "fplImportStatusTitle"
+        );
+
+
+    if (statusTitle) {
+
+        statusTitle.textContent =
+            "Captain Import";
+
+    }
+
+
+    try {
+
+        await importCaptainData();
+
+    }
+    catch(error) {
+
+        console.error(
+            "Captain import error:",
+            error
+        );
+
+
+        updateFplImportSummary(
+            "Captain import failed."
+        );
+
+    }
+    finally {
+
+        button.disabled =
+            false;
+
+
+        button.textContent =
+            "Update Captains";
+
+    }
+
+}
+
+function renderImportTimestamps(
+    season
+) {
+
+    const scoresElement =
+        document.getElementById(
+            "scoresLastImported"
+        );
+
+
+    const captainsElement =
+        document.getElementById(
+            "captainsLastImported"
+        );
+
+
+    if (scoresElement) {
+
+        scoresElement.textContent =
+            formatImportTimestamp(
+                season.scores_last_imported_at
+            );
+
+    }
+
+
+    if (captainsElement) {
+
+        captainsElement.textContent =
+            formatImportTimestamp(
+                season.captains_last_imported_at
+            );
+
+    }
+
+}
+
+function formatImportTimestamp(
+    value
+) {
+
+    if (!value)
+        return "Never";
+
+
+    return new Intl.DateTimeFormat(
+        "en-GB",
+        {
+            dateStyle:
+                "medium",
+
+            timeStyle:
+                "short"
+        }
+    )
+        .format(
+            new Date(
+                value
+            )
+        );
 
 }
 

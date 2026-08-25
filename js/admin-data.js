@@ -19,8 +19,10 @@ async function getAdminActiveSeason() {
         seasonCode: data.season_code,
         totalGameweeks: data.total_gameweeks,
         currentGameweek: data.current_gameweek,
-        active: data.active
-    };
+        active: data.active,
+        scores_last_imported_at: data.scores_last_imported_at,
+        captains_last_imported_at: data.captains_last_imported_at
+        };
 
 }
 
