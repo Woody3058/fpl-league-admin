@@ -328,9 +328,217 @@ input[type="checkbox"] {
 
 }
 
+
+
+/* ==========================================
+   GAMEWEEK DATA STATUS
+   ========================================== */
+
+.gameweek-data-status {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap:
+        12px;
+
+    margin:
+        18px 0;
+
+}
+
+
+.gameweek-data-status-item {
+
+    padding:
+        14px 18px;
+
+    background:
+        #f7f7f7;
+
+    border:
+        1px solid #ddd;
+
+    border-radius:
+        6px;
+
+}
+
+
+.gameweek-data-status-item span {
+
+    display:
+        block;
+
+    margin-bottom:
+        5px;
+
+    font-size:
+        12px;
+
+    color:
+        #777;
+
+}
+
+
+.gameweek-data-status-item strong {
+
+    display:
+        block;
+
+    font-size:
+        18px;
+
+}
+
+.gameweek-data-status-detail {
+
+    display:
+        block;
+
+    margin-top:
+        6px;
+
+    font-size:
+        12px;
+
+    color:
+        #777;
+
+    line-height:
+        1.4;
+
+}
+
+
+/* ==========================================
+   MOBILE
+   ========================================== */
+
+@media (
+    max-width: 700px
+) {
+
+    .gameweek-data-status {
+
+        grid-template-columns:
+            1fr;
+
+    }
+
+}
+
+
+
+
+
 /* ==========================================
    CHIP OVERVIEW
    ========================================== */
+
+/* ==========================================
+   CHIP SUMMARY
+   ========================================== */
+
+.chip-summary {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap:
+        12px;
+
+    margin:
+        18px 0;
+
+}
+
+
+.chip-summary-card {
+
+    padding:
+        14px 18px;
+
+    background:
+        #f7f7f7;
+
+    border:
+        1px solid #ddd;
+
+    border-radius:
+        6px;
+
+}
+
+
+.chip-summary-card span {
+
+    display:
+        block;
+
+    margin-bottom:
+        5px;
+
+    font-size:
+        12px;
+
+    color:
+        #777;
+
+}
+
+
+.chip-summary-card strong {
+
+    display:
+        block;
+
+    font-size:
+        18px;
+
+}
+
+
+.chip-summary-card small {
+
+    display:
+        block;
+
+    margin-top:
+        6px;
+
+    font-size:
+        12px;
+
+    color:
+        #777;
+
+}
+
+
+/* ==========================================
+   MOBILE
+   ========================================== */
+
+@media (
+    max-width: 700px
+) {
+
+    .chip-summary {
+
+        grid-template-columns:
+            1fr;
+
+    }
+
+}
 
 #chipOverviewTable td:not(:first-child),
 #chipOverviewTable th:not(:first-child) {

@@ -78,6 +78,8 @@ async function startupChips() {
         // RENDER
         // ======================================
 
+        renderChipSummary();
+
         renderChipOverview();
 
 
@@ -97,6 +99,197 @@ async function startupChips() {
 
 }
 
+// ==========================================
+// GET CHIP DISPLAY NAME
+// ==========================================
+
+function getChipDisplayName(
+    chip
+) {
+
+    switch (
+        chip
+    ) {
+
+        case "WC":
+            return "Wildcard";
+
+        case "FH":
+            return "Free Hit";
+
+        case "BB":
+            return "Bench Boost";
+
+        case "TC":
+            return "Triple Captain";
+
+        default:
+            return chip ?? "Unknown";
+
+    }
+
+}
+
+
+// ==========================================
+// RENDER CHIP SUMMARY
+// ==========================================
+
+function renderChipSummary() {
+
+    console.log(
+        "chips.js: renderChipSummary Called"
+    );
+
+
+    // ======================================
+    // TOTAL CHIPS USED
+    // ======================================
+
+    const chipsUsed =
+        chipPageData.length;
+
+
+    const totalAvailableChips =
+        chipPagePlayers.length *
+        8;
+
+
+    document
+        .getElementById(
+            "chipsUsedCount"
+        )
+        .textContent =
+        `${chipsUsed} / ${totalAvailableChips}`;
+
+
+    // ======================================
+    // PLAYERS WHO HAVE USED A CHIP
+    // ======================================
+
+    const playerIds =
+        new Set(
+            chipPageData.map(
+                chip =>
+                    chip.player_id
+            )
+        );
+
+
+    document
+        .getElementById(
+            "chipPlayersCount"
+        )
+        .textContent =
+        `${playerIds.size} / ${chipPagePlayers.length}`;
+
+
+    // ======================================
+    // LATEST CHIP
+    // ======================================
+
+    const latestChipPlayerElement =
+        document.getElementById(
+            "latestChipPlayer"
+        );
+
+
+    const latestChipDetailsElement =
+        document.getElementById(
+            "latestChipDetails"
+        );
+
+
+    if (
+        chipPageData.length === 0
+    ) {
+
+        latestChipPlayerElement.textContent =
+            "—";
+
+
+        latestChipDetailsElement.textContent =
+            "No chips used yet";
+
+
+        return;
+
+    }
+
+
+    // ======================================
+    // FIND LATEST CHIP BY GAMEWEEK
+    // ======================================
+
+    const latestGameweek =
+        Math.max(
+            ...chipPageData.map(
+                chip =>
+                    chip.gameweek
+            )
+        );
+
+
+    const latestChips =
+        chipPageData.filter(
+            chip =>
+                chip.gameweek ===
+                latestGameweek
+        );
+
+
+    // ======================================
+    // GET PLAYER NAMES
+    // ======================================
+
+    const latestNames =
+        latestChips.map(
+            chip => {
+
+                const player =
+                    chipPagePlayers.find(
+                        item =>
+                            item.player_id ===
+                            chip.player_id
+                    );
+
+
+                return (
+                    player?.players?.name ??
+                    `Player ${chip.player_id}`
+                );
+
+            }
+        );
+
+
+    latestChipPlayerElement.textContent =
+        latestNames.join(
+            " / "
+        );
+
+
+    // ======================================
+    // DETAILS
+    // ======================================
+
+    const latestChipNames =
+        [
+            ...new Set(
+                latestChips.map(
+                    chip =>
+                        getChipDisplayName(
+                            chip.chip
+                        )
+                )
+            )
+        ];
+
+
+    latestChipDetailsElement.textContent =
+        `${latestChipNames.join(" / ")} · GW${latestGameweek}`;
+
+}
 
 // ==========================================
 // RENDER CHIP OVERVIEW

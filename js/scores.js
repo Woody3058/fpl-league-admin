@@ -226,6 +226,10 @@ async function loadScores(
             gameweek
         );
 
+        await updateGameweekDataStatus(
+            gameweek
+        );
+
     }
     catch(error) {
 
@@ -3124,6 +3128,24 @@ async function importCaptainData() {
             scorePageSeason
         );
 
+        
+        const selectedGameweek =
+            Number(
+                document
+                    .getElementById(
+                        "gameweekSelector"
+                    )
+                    .value
+            );
+
+
+        await updateGameweekDataStatus(
+            selectedGameweek
+        );
+
+
+
+
     }
     catch(error) {
 
@@ -3305,6 +3327,225 @@ function mapFplChip(
 
         default:
             return activeChip ?? null;
+
+    }
+
+}
+
+async function updateGameweekDataStatus(
+    gameweek
+) {
+
+    console.log(
+        "scores.js: updateGameweekDataStatus Called",
+        gameweek
+    );
+
+
+    try {
+
+        // ======================================
+        // SCORE DATA
+        // ======================================
+
+        const {
+            data: scores,
+            error: scoreError
+        } =
+            await supabaseClient
+                .from(
+                    "gameweek_scores"
+                )
+                .select(`
+                    player_id,
+                    fpl_points,
+                    captain_name,
+                    captain_points,
+                    captain_multiplier
+                `)
+                .eq(
+                    "season_id",
+                    scorePageSeason.id
+                )
+                .eq(
+                    "gameweek",
+                    gameweek
+                );
+
+
+        if (scoreError)
+            throw scoreError;
+
+
+        // ======================================
+        // CHIP DATA
+        // ======================================
+
+        const {
+            data: chips,
+            error: chipError
+        } =
+            await supabaseClient
+                .from(
+                    "player_chips"
+                )
+                .select(`
+                    player_id,
+                    chip
+                `)
+                .eq(
+                    "season_id",
+                    scorePageSeason.id
+                )
+                .eq(
+                    "gameweek",
+                    gameweek
+                );
+
+
+        if (chipError)
+            throw chipError;
+
+
+        // ======================================
+        // PLAYER COUNT
+        // ======================================
+
+        const totalPlayers =
+            scorePagePlayers.length;
+
+
+        // ======================================
+        // SCORE COUNT
+        // ======================================
+
+        const scoreCount =
+            scores.filter(
+                score =>
+                    score.fpl_points !==
+                    null
+            ).length;
+
+
+        // ======================================
+        // CAPTAIN COUNT
+        // ======================================
+
+        const captainPlayerIds =
+            new Set(
+                scores
+                    .filter(
+                        score =>
+                            score.captain_name &&
+                            score.captain_multiplier !==
+                                null
+                    )
+                    .map(
+                        score =>
+                            score.player_id
+                    )
+            );
+
+
+        const captainCount =
+            captainPlayerIds.size;
+
+
+        // ======================================
+        // CHIP COUNT
+        // ======================================
+
+        const chipCount =
+            chips.length;
+
+
+        // ======================================
+        // MISSING CAPTAIN PLAYERS
+        // ======================================
+
+        const missingCaptainPlayers =
+            scorePagePlayers.filter(
+                player =>
+                    !captainPlayerIds.has(
+                        player.player_id
+                    )
+            );
+
+
+        const missingCaptainNames =
+            missingCaptainPlayers.map(
+                player =>
+                    player.players?.name ??
+                    `Player ${player.player_id}`
+            );
+
+
+        // ======================================
+        // DISPLAY
+        // ======================================
+
+        document
+            .getElementById(
+                "gameweekScoreStatus"
+            )
+            .textContent =
+            `${scoreCount} / ${totalPlayers} ${
+                scoreCount === totalPlayers
+                    ? "✓"
+                    : "⚠"
+            }`;
+
+
+        const captainStatusElement =
+            document.getElementById(
+                "gameweekCaptainStatus"
+            );
+
+
+        const captainMissingElement =
+            document.getElementById(
+                "gameweekCaptainMissing"
+            );
+
+
+        captainStatusElement.textContent =
+            `${captainCount} / ${totalPlayers} ${
+                captainCount === totalPlayers
+                    ? "✓"
+                    : "⚠"
+            }`;
+
+
+        if (
+            missingCaptainNames.length > 0
+        ) {
+
+            captainMissingElement.textContent =
+                `Missing: ${missingCaptainNames.join(", ")}`;
+
+        }
+        else {
+
+            captainMissingElement.textContent =
+                "";
+
+        }
+
+
+        document
+            .getElementById(
+                "gameweekChipStatus"
+            )
+            .textContent =
+            chipCount;
+
+    }
+    catch(error) {
+
+        console.error(
+            "Unable to update gameweek data status:",
+            error
+        );
 
     }
 
