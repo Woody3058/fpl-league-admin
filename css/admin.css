@@ -714,6 +714,19 @@ button:disabled {
     display: none;
 }
 
+.inactive-player-row {
+    background: #f8fafc;
+    color: #64748b;
+}
+
+.inactive-player-row:hover {
+    background: #f1f5f9;
+}
+
+.inactive-player-row td:first-child {
+    text-decoration: line-through;
+}
+
 #playerManagementTable td:nth-child(1) {
     min-width: 120px;
 }
@@ -766,19 +779,6 @@ button:disabled {
         align-items: center;
         gap: 8px;
         cursor: pointer;
-    }
-
-    .inactive-player-row {
-        background: #f8fafc;
-        color: #64748b;
-    }
-
-    .inactive-player-row:hover {
-        background: #f1f5f9;
-    }
-
-    .inactive-player-row td:first-child {
-        text-decoration: line-through;
     }
 
     .save-player-button {
@@ -841,6 +841,10 @@ button:disabled {
     display: flex;
     gap: 6px;
     flex-wrap: wrap;
+}
+
+#seasonManagementTable td:nth-child(2) {
+    min-width: 120px;
 }
 
 .season-action-button {
