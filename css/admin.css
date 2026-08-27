@@ -197,22 +197,6 @@ button:hover {
     color: white;
 }
 
-.hrefNavLink {
-    display: inline-block;
-    border: 0;
-    border-radius: 6px;
-    background: #374151;
-    color: white;    
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    text-decoration: none;
-}
-
-.hrefNavLink:hover {
-    background: #371f21;
-}
-
 /* ==========================================
    PANELS
    ========================================== */
@@ -815,10 +799,16 @@ button:disabled {
 /* ==========================================
    BUTTONS
    ========================================== */
+   
+.season-controls {
+    display: flex;
+    align-items: center;
+    gap:10px;
+    flex-wrap: wrap;
+}
 
-.admin-action-link {
+.season-action-link {
     display: inline-block;
-    padding: 9px 14px;
     border: 0;
     border-radius: 6px;
     background: #374151;
@@ -829,8 +819,8 @@ button:disabled {
     text-decoration: none;
 }
 
-.admin-action-link:hover {
-    background: #1f2937;
+.season-action-link:hover {
+    background: #371f21;
 }
 
 /* ==========================================
