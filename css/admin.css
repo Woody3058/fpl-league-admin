@@ -170,12 +170,13 @@ button:hover {
     justify-content: center;
     align-items: center;
     gap: 18px;
-
     padding: 18px;
     background: white;
     border-bottom: 1px solid #ddd;
     width: min(1400px, calc(100% - 40px));
     margin: 24px auto 50px;
+    border: 1px solid #dfe3e8;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .admin-navigation a {
@@ -206,7 +207,7 @@ button:hover {
     border: 1px solid #dfe3e8;
     border-radius: 10px;
     padding: 24px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .admin-panel +
