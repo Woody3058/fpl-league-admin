@@ -131,7 +131,6 @@ th {
     color: #52606d;
 }
 
-
 tbody tr:hover {
     background: #fafbfc;
 }
@@ -144,7 +143,7 @@ td input {
    BUTTONS
    ========================================== */
 
-button{
+button {
     display: inline-block;
     padding: 9px 14px;
     border: 0;
@@ -158,7 +157,7 @@ button{
 }
 
 button:hover {
-    background: #1f2937;
+    background: #371f21;
 }
 
 /* ==========================================
@@ -196,6 +195,22 @@ button:hover {
 .admin-navigation a.admin-nav-active {
     background: #1f2937;
     color: white;
+}
+
+.hrefNavLink {
+    display: inline-block;
+    border: 0;
+    border-radius: 6px;
+    background: #374151;
+    color: white;    
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.hrefNavLink:hover {
+    background: #371f21;
 }
 
 /* ==========================================
@@ -394,17 +409,6 @@ button:disabled {
 }
 
 /* ==========================================
-   TIMESTAMPS - MOBILE
-   ========================================== */
-
-@media (max-width: 700px) {
-    .import-timestamps {
-        flex-direction: column;
-        gap: 6px;
-    }
-}
-
-/* ==========================================
    FPL IMPORT STATUS
    ========================================== */
 
@@ -538,47 +542,49 @@ button:disabled {
     SCORES TABLE
     ========================================== */
 
-    #scoreManagementTable {
-        table-layout: auto;
-    }
+#scoreManagementTable {
+    table-layout: auto;
+}
 
-    #scoreManagementTable th:first-child,
-    #scoreManagementTable td:first-child {
-        min-width: 140px;
-    }
+#scoreManagementTable th:first-child,
+#scoreManagementTable td:first-child {
+    min-width: 140px;
+}
 
-    .score-fpl {
-        font-weight: 600;
-    }
+.score-total {
+    font-size: 16px;
+}
 
-    .score-total {
-        font-size: 16px;
-    }
+.score-adjusted-row {
+    background: #fffbeb;
+}
 
-    .score-adjusted-row {
-        background: #fffbeb;
-    }
+.score-adjusted-row:hover {
+    background: #fef3c7;
+}
 
-    .score-adjusted-row:hover {
-        background: #fef3c7;
-    }
+.score-adjusted-row .score-total {
+    color: #92400e;
+}
 
-    .score-adjusted-row .score-total {
-        color: #92400e;
-    }
+#scoreManagementTable {
+    min-width: 760px;
+}
 
-    #scoreManagementTable {
-        min-width: 760px;
-    }
+#scoreManagementTable td:nth-child(1) {
+    min-width: 120px;
+}
 
-    #scoreManagementTable td:nth-child(1) {
-        min-width: 120px;
-        font-weight: 600;
-    }
+#scoreManagementTable th:nth-child(2),
+#scoreManagementTable td:nth-child(2),
+#scoreManagementTable th:nth-child(4),
+#scoreManagementTable td:nth-child(4) {
+    text-align: center;
+}
 
-    #scoreManagementTable td:nth-child(5) input {
-        min-width: 160px;
-    }    
+#scoreManagementTable td:nth-child(5) input {
+    min-width: 160px;
+} 
 
 /* ==========================================
    SCORES - MOBILE
@@ -598,6 +604,11 @@ button:disabled {
 
     .gameweek-data-status {
         grid-template-columns: 1fr;
+    }
+
+    .import-timestamps {
+        flex-direction: column;
+        gap: 6px;
     }
 }
 
@@ -718,6 +729,15 @@ button:disabled {
     display: none;
 }
 
+#playerManagementTable td:nth-child(1) {
+    min-width: 120px;
+}
+
+#playerManagementTable th:nth-child(4) {
+    padding-left: 80px;
+}
+    
+
 /* ==========================================
    PLAYERS PAGE - MOBILE
    ========================================== */
@@ -742,8 +762,9 @@ button:disabled {
 
     #playerManagementTable th:first-child,
     #playerManagementTable td:first-child {
-        min-width: 140px;
+        min-width: 240px;
     }
+    
 
     #playerManagementTable
     .player-fpl-id {

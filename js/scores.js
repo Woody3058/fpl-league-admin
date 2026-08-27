@@ -289,24 +289,19 @@ function renderScores(
                 adjustment;
 
 
-            const row =
-                document.createElement(
-                    "tr"
-                );
+            const row = document.createElement("tr");
 
                 if (adjustment !== 0) {
-
-                    row.classList.add(
-                        "score-adjusted-row"
-                    );
-
+                    row.classList.add("score-adjusted-row");
                 }
 
 
             row.innerHTML = `
 
                 <td>
-                    ${player.players?.name ?? "Unknown"}
+                    <strong>
+                        ${player.players?.name ?? "Unknown"}
+                    </strong>
                 </td>
 
                 <td class="score-fpl">
@@ -326,9 +321,9 @@ function renderScores(
 
                 <td class="score-total">
 
-                    <strong>
+
                         ${total}
-                    </strong>
+
 
                 </td>
 

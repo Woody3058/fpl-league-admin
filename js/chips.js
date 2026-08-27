@@ -373,7 +373,9 @@ function renderChipOverview() {
             row.innerHTML = `
 
                 <td>
-                    ${playerName}
+                    <strong>
+                        ${playerName}
+                    </strong>
                 </td>
 
                 <td>

@@ -192,85 +192,56 @@ function renderPlayers(
             row.innerHTML = `
 
                 <td>
-
                     <strong>
                         ${player.players?.name ?? "Unknown"}
                     </strong>
-
                 </td>
 
-
                 <td>
-
                     <input
                         type="number"
                         class="player-fpl-id"
                         data-season-player-id="${player.id}"
                         value="${player.fpl_entry_id ?? ""}"
                     >
-
                 </td>
 
-
                 <td>
-
                     <input
                         type="text"
                         class="player-team-name"
                         data-season-player-id="${player.id}"
                         value="${player.fpl_team_name ?? ""}"
                     >
-
                 </td>
 
-
                 <td>
-
-                <td class="player-active-cell">
-
                     <label>
-
                         <input
                             type="checkbox"
                             class="player-active"
                             data-season-player-id="${player.id}"
-                            ${
-                                player.active
-                                    ? "checked"
-                                    : ""
-                            }
+                            ${player.active ? "checked" : ""}
                         >
 
                         <span>
-                            ${
-                                player.active
-                                    ? "Active"
-                                    : "Inactive"
-                            }
+                            ${player.active ? "Active" : "Inactive"}
                         </span>
 
                     </label>
-
                 </td>
 
-
                 <td>
-
                     <button
                         class="save-player-button"
                         data-season-player-id="${player.id}"
                     >
                         Save
                     </button>
-
                 </td>
-
             `;
 
-
-            tbody.appendChild(
-                row
-            );
+            tbody.appendChild(row );
 
         }
     );
