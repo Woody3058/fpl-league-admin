@@ -176,6 +176,7 @@ button:hover {
     margin: 24px auto 50px;
     border: 1px solid #dfe3e8;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    font-size: 18px;
 }
 
 .admin-navigation a {
