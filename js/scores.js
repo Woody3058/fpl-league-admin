@@ -3551,8 +3551,6 @@ async function updateGameweekDataStatus(
 
 }
 
-
-
 async function testCaptainPick(
     entryId,
     gameweek
@@ -3761,7 +3759,6 @@ async function testGameweekPlayerData(
     }
 
 }
-
 
 // ==========================================
 // START

@@ -2,9 +2,7 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
@@ -18,18 +16,13 @@
         rel="stylesheet"
         href="css/admin.css?v=1.2"
     >
-
 </head>
-
 
 <body>
 
-
 <header class="admin-header">
 
-    <h1>
-        FA Cuck FPL League Admin
-    </h1>
+    <h1>FA Cuck FPL League Admin</h1>
 
     <button
         id="logoutButton"
@@ -39,7 +32,6 @@
     </button>
 
 </header>
-
 
 <nav class="admin-navigation">
 
@@ -80,24 +72,15 @@
 
 </nav>
 
-
 <main class="admin-main">
 
     <section class="admin-panel">
 
         <div class="admin-panel-header">
 
-            <h2>
-                Chip Usage -
-                <span id="chipSeasonName">
-                </span>
-            </h2>
+            <h2>Chip Usage - <span id="chipSeasonName"></span></h2>
 
         </div>
-
-        <!-- ======================================
-        CHIP SUMMARY
-        ====================================== -->
 
         <div class="chip-summary">
 
@@ -117,7 +100,6 @@
 
             </div>
 
-
             <div class="chip-summary-card">
 
                 <span>
@@ -133,7 +115,6 @@
                 </small>
 
             </div>
-
 
             <div class="chip-summary-card">
 
@@ -153,15 +134,11 @@
 
         </div>
 
-
         <div class="table-container">
 
             <table id="chipOverviewTable">
-
                 <thead>
-
                     <tr>
-
                         <th>
                             Player
                         </th>
@@ -181,15 +158,11 @@
                         <th>
                             Triple Captain
                         </th>
-
                     </tr>
-
                 </thead>
-
 
                 <tbody>
                 </tbody>
-
             </table>
 
         </div>
@@ -198,16 +171,14 @@
 
 </main>
 
-
-<script
-    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
-></script>
-
-<script src="js/supabase.js?v=1.2"></script>
-<script src="js/admin-common.js?v=1.2"></script>
-<script src="js/admin-data.js?v=1.2"></script>
-<script src="js/chips.js?v=1.2"></script>
-
+    <!--==================================
+        SCRIPTS
+        ================================== -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js?v=1.2"></script>
+    <script src="js/admin-common.js?v=1.2"></script>
+    <script src="js/admin-data.js?v=1.2"></script>
+    <script src="js/chips.js?v=1.2"></script>
 
 </body>
 

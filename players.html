@@ -3,9 +3,7 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
@@ -19,18 +17,13 @@
         rel="stylesheet"
         href="css/admin.css?v=1.2"
     >
-
 </head>
-
 
 <body>
 
-
 <header class="admin-header">
 
-    <h1>
-        FA Cuck FPL League Admin
-    </h1>
+    <h1>FA Cuck FPL League Admin</h1>
 
     <button
         id="logoutButton"
@@ -40,7 +33,6 @@
     </button>
 
 </header>
-
 
 <nav class="admin-navigation">
 
@@ -81,24 +73,15 @@
 
 </nav>
 
-
 <main class="admin-main">
-
 
     <section class="admin-panel">
 
         <div class="admin-panel-header">
 
-        <h2>
-            Player Management -
-            <span id="playerSeasonName"></span>
-        </h2>
+        <h2>Player Management - <span id="playerSeasonName"></span></h2>
 
         </div>
-
-        <!-- ==================================
-        ADD PLAYER
-        ================================== -->
 
     <div class="player-add-controls">
 
@@ -111,17 +94,13 @@
 
     </div>
 
-
     <section
         id="playerAddSection"
         class="player-add-section"
         hidden
     >
 
-        <h3>
-            Add Player
-        </h3>
-
+        <h3>Add Player</h3>
 
         <div class="form-row">
 
@@ -138,7 +117,6 @@
 
         </div>
 
-
         <div class="form-row">
 
             <label
@@ -153,7 +131,6 @@
             >
 
         </div>
-
 
         <div class="form-row">
 
@@ -170,14 +147,12 @@
 
         </div>
 
-
         <button
             id="addPlayerButton"
             type="button"
         >
             Save Player
         </button>
-
 
         <div
             id="playerMessage"
@@ -186,21 +161,11 @@
 
     </section>
 
-
-        <!-- ==================================
-             PLAYER TABLE
-             ================================== -->
-
         <div class="table-container">
 
-            <table
-                id="playerManagementTable"
-            >
-
+            <table id="playerManagementTable">
                 <thead>
-
                     <tr>
-
                         <th>
                             Player
                         </th>
@@ -219,23 +184,22 @@
 
                         <th>
                         </th>
-
                     </tr>
-
                 </thead>
-
 
                 <tbody>
                 </tbody>
-
             </table>
 
         </div>
 
     </section>
 
-
 </main>
+
+    <!--==================================
+        SCRIPTS
+        ================================== -->
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase.js?v=1.2"></script>

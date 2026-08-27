@@ -3,9 +3,7 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
@@ -19,18 +17,13 @@
         rel="stylesheet"
         href="css/admin.css?v=1.2"
     >
-
 </head>
-
 
 <body>
 
-
 <header class="admin-header">
 
-    <h1>
-        FA Cuck FPL League Admin
-    </h1>
+    <h1>FA Cuck FPL League Admin</h1>
 
     <button
         id="logoutButton"
@@ -40,7 +33,6 @@
     </button>
 
 </header>
-
 
 <nav class="admin-navigation">
 
@@ -81,19 +73,15 @@
 
 </nav>
 
-
 <main class="admin-main">
-
 
     <section class="admin-panel">
 
         <div class="admin-panel-header">
 
             <h2>
-                Gameweek Scores -
-                <span id="scoreSeasonName"></span>
+                Gameweek Scores - <span id="scoreSeasonName"></span>
             </h2>
-
 
             <div class="score-controls">
 
@@ -103,12 +91,10 @@
                     Gameweek:
                 </label>
 
-
                 <select
                     id="gameweekSelector"
                 >
                 </select>
-
 
                 <button
                     id="importFplButton"
@@ -116,7 +102,6 @@
                 >
                     Import FPL Scores
                 </button>
-
 
                 <button
                     id="importCaptainDataButton"
@@ -128,11 +113,6 @@
             </div>
 
         </div>
-
-
-        <!-- ==================================
-            IMPORT TIMESTAMPS
-            ================================== -->
 
         <div class="import-timestamps">
 
@@ -152,9 +132,6 @@
 
         </div>
 
-        
-
-
         <div
             id="gameweekDataStatus"
             class="gameweek-data-status"
@@ -171,7 +148,6 @@
                 </strong>
 
             </div>
-
 
             <div class="gameweek-data-status-item">
 
@@ -191,7 +167,6 @@
 
             </div>
 
-
             <div class="gameweek-data-status-item">
 
                 <span>
@@ -206,16 +181,13 @@
 
         </div>
 
-
         <div
             id="fplImportStatus"
             class="fpl-import-status"
             style="display:none;"
         >
 
-            <h3 id="fplImportStatusTitle">
-                FPL Import Status
-            </h3>
+            <h3 id="fplImportStatusTitle">FPL Import Status</h3>
 
             <div
                 id="fplImportSummary"
@@ -229,40 +201,31 @@
 
         </div>
 
-
         <div class="table-container">
-
-            <table
-                id="scoreManagementTable"
-            >
-
+            <table id="scoreManagementTable">
                 <thead>
-
                     <tr>
-
                         <th>Player</th>
-                        <th>FPL</th>
+                        <th>Points</th>
                         <th>Adjustment</th>
-                        <th>Total</th>
+                        <th>Points Adjusted</th>
                         <th>Note</th>
                         <th></th>
-
                     </tr>
-
                 </thead>
-
 
                 <tbody>
                 </tbody>
-
             </table>
-
         </div>
 
     </section>
 
-
 </main>
+
+    <!--==================================
+        SCRIPTS
+        ================================== -->
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase.js?v=1.2"></script>

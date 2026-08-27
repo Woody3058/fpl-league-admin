@@ -3,9 +3,7 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
@@ -19,18 +17,13 @@
         rel="stylesheet"
         href="css/admin.css?v=1.2"
     >
-
 </head>
-
 
 <body>
 
-
 <header class="admin-header">
 
-    <h1>
-        FA Cuck FPL League Admin
-    </h1>
+    <h1>FA Cuck FPL League Admin</h1>
 
     <button
         id="logoutButton"
@@ -40,7 +33,6 @@
     </button>
 
 </header>
-
 
 <nav class="admin-navigation">
 
@@ -81,9 +73,7 @@
 
 </nav>
 
-
 <main class="admin-main">
-
 
     <section class="admin-panel">
 
@@ -91,9 +81,7 @@
 
             <div class="admin-panel-title">
 
-                <h2>
-                    Historical Score Import
-                </h2>
+                <h2>Historical Score Import</h2>
 
                 <p class="page-description">
                     Select a historical season and Excel file,
@@ -103,17 +91,11 @@
 
             </div>
 
-
             <a href="seasons.html">
                 Back to Seasons
             </a>
 
         </div>
-
-
-        <!-- ==================================
-             IMPORT CONTROLS
-             ================================== -->
 
         <section class="historical-import-controls">
 
@@ -132,7 +114,6 @@
 
             </div>
 
-
             <div class="form-row">
 
                 <label
@@ -149,14 +130,12 @@
 
             </div>
 
-
             <button
                 id="previewHistoricalButton"
                 type="button"
             >
                 Preview Import
             </button>
-
 
             <div
                 id="historicalImportMessage"
@@ -165,31 +144,18 @@
 
         </section>
 
-
-        <!-- ==================================
-             PLAYER MAPPING
-             ================================== -->
-
         <section
             id="historicalPlayerMappingSection"
             style="display:none;"
         >
 
-            <h3>
-                Player Mapping
-            </h3>
-
+            <h3>Player Mapping</h3>
 
             <div class="table-container">
 
-                <table
-                    id="historicalPlayerMappingTable"
-                >
-
+                <table id="historicalPlayerMappingTable">
                     <thead>
-
                         <tr>
-
                             <th>
                                 Excel Player
                             </th>
@@ -197,52 +163,35 @@
                             <th>
                                 Database Player
                             </th>
-
                         </tr>
-
                     </thead>
-
 
                     <tbody>
                     </tbody>
-
                 </table>
 
             </div>
 
         </section>
 
-
-        <!-- ==================================
-             SCORE PREVIEW
-             ================================== -->
-
         <section
             id="historicalScorePreviewSection"
             style="display:none;"
         >
 
-            <h3>
-                Score Preview
-            </h3>
-
+            <h3>Score Preview</h3>
 
             <div class="table-container">
 
-                <table
-                    id="historicalScorePreviewTable"
-                >
-
+                <table id="historicalScorePreviewTable">
                     <thead>
                     </thead>
 
                     <tbody>
                     </tbody>
-
                 </table>
 
             </div>
-
 
             <button
                 id="importHistoricalButton"
@@ -253,18 +202,15 @@
 
         </section>
 
-
     </section>
-
 
 </main>
 
+    <!--==================================
+        SCRIPTS
+        ================================== -->
 
-<script
-    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
-></script>
-
-    <!-- SheetJS - required for reading Excel files -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
     <script src="js/supabase.js?v=1.2"></script>
     <script src="js/admin-common.js?v=1.2"></script>
