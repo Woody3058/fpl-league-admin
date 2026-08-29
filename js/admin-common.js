@@ -1,4 +1,23 @@
 
+let DebugArgs = true;
+let DebugPlayerImport = true;
+
+function debugLog(...args) {
+        console.log(...args);
+}
+
+function debugLogArgs(...args) {
+    if (DebugArgs) {
+        console.log(...args);
+    }
+}
+
+function debugLogPlayerImport(...args) {
+    if (DebugPlayerImport) {
+        console.log(...args);
+    }
+}
+
 async function requireAdminLogin() {
 
     console.log("admin-common.js: requireAdminLogin Called");

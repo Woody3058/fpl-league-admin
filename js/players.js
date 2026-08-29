@@ -334,17 +334,7 @@ async function savePlayer(
 
     try {
 
-        await saveAdminSeasonPlayer(
-
-            seasonPlayerId,
-
-            fplEntryId,
-
-            fplTeamName || null,
-
-            active
-
-        );
+        await saveAdminSeasonPlayer(seasonPlayerId, fplEntryId, fplTeamName || null, active);
 
 
         console.log(
