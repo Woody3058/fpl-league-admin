@@ -343,17 +343,15 @@ input[type="checkbox"] {
 /* ---------------------------------- SCORES PAGE ---------------------------------- */
 
 /* ==========================================
-   GAMEWEEK SELECTOR
+   SELECTOR AND BUTTONS
    ========================================== */
 
-.score-controls label {
-    font-weight: 600;
-}
-
-.score-controls select {
-    font-weight: 600;
-    background: #f8fafc;
-
+.score-controls {
+    width: 20%;
+    display: flex;
+    align-items: center;
+    gap:10px;
+    flex-wrap: wrap;
 }
 
 .score-controls {
@@ -362,15 +360,18 @@ input[type="checkbox"] {
     gap:10px;
     flex-wrap: wrap;
 }
-
-.score-controls select {
-    width: auto;
-    min-width: 90px;
+.score-controls label {
+    font-weight: 600;
 }
 
-/* ==========================================
-   BUTTONS
-   ========================================== */
+.score-controls select {
+    width: 100%;
+    font-weight: 600;
+}
+
+.score-controls button {
+    width: 100%;
+}
 
 button:disabled {
     opacity: 0.6;
