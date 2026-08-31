@@ -940,8 +940,6 @@ async function importCaptainData(seasonId, seasonPlayers) {
 
                 const playerRows = scoreRows.filter(row => row.player_id === player.player_id && row.gameweek === selectedGameweek);
 
-                console.log("PLAYER ROWS: ", playerRows);
-
                 playerRows.forEach(row => {
                         //const captainAlreadyImported = Boolean(row.captain_name && row.captain_multiplier);
 

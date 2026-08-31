@@ -604,7 +604,6 @@ async function saveAdminGameweekScore(seasonId, playerId, gameweek, adjustment, 
             .eq("player_id", playerId)
             .eq("gameweek", gameweek)
             .maybeSingle();
-
     if (existingError)
         throw existingError;
 
@@ -618,7 +617,6 @@ async function saveAdminGameweekScore(seasonId, playerId, gameweek, adjustment, 
                 .from("gameweek_scores")
                 .update({adjustment: adjustment, note: note})
                 .eq("id", existing.id);
-
         if (error)
             throw error;
 
@@ -629,37 +627,19 @@ async function saveAdminGameweekScore(seasonId, playerId, gameweek, adjustment, 
     // NEW SCORE RECORD
     // ==========================================
 
-    const {
-        error
-    } =
+    const {error} =
         await supabaseClient
             .from("gameweek_scores")
             .insert({
-
-                season_id:
-                    seasonId,
-
-                player_id:
-                    playerId,
-
-                gameweek:
-                    gameweek,
-
-                fpl_points:
-                    0,
-
-                adjustment:
-                    adjustment,
-
-                note:
-                    note
-
+                season_id: seasonId,
+                player_id: playerId,
+                gameweek: gameweek,
+                fpl_points: 0,
+                adjustment: adjustment,
+                note: note
             });
-
-
     if (error)
         throw error;
-
 }
 
 async function saveAdminSeasonPlayer(seasonPlayerId, fplEntryId, fplTeamName, active) {
