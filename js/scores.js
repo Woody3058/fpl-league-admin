@@ -4,6 +4,7 @@ let scorePagePlayers = [];
 let fplPlayerLookup = {};
 let currentGameweek = 0;
 let currentSeasonId = 0;
+let selectedGameweek = 0;
 
 // ==========================================
 // STARTUP
@@ -27,11 +28,11 @@ async function startupScores() {
         currentSeasonId = scorePageSeason.id
         scorePagePlayers = await getAdminSeasonPlayers(currentSeasonId);
 
-        document.getElementById("scoreSeasonName").textContent = scorePageSeason.name;
-
         populateGameweekSelector(scorePageSeason);
         renderImportTimestamps(scorePageSeason);
         await loadScores(scorePageSeason.currentGameweek);
+
+        document.getElementById("scoreSeasonName").textContent = scorePageSeason.name;
 
         document.getElementById("gameweekSelector").addEventListener("change", event => {loadScores(Number(event.target.value));});
         document.getElementById("importFplButton").addEventListener("click", handleFplImport);
@@ -80,6 +81,8 @@ async function loadScores(gameweek) {
     console.clear();
     debugLog("scores.js: loadScores Called");
 
+    selectedGameweek = gameweek;
+
     try {
         const scoreData = await getAdminGameweekScores(currentSeasonId, gameweek);
 
@@ -88,6 +91,8 @@ async function loadScores(gameweek) {
     }
     catch(error) {console.error("Unable to load scores:", error);
     }
+
+    document.getElementById("importCaptainDataButton").textContent = `Update Captains for GW${selectedGameweek}`;
 }
 
 // ==========================================
@@ -179,31 +184,31 @@ async function updateDataPanels(seasonId, gameweek, scores) {
 
     debugLog("scores.js: updateDataPanels Called");
 
-        chips = await getGameweekChips(seasonId, gameweek);
+    chips = await getGameweekChips(seasonId, gameweek);    
 
-        const totalPlayers = scorePagePlayers.length;
-        const scoreCount =  scores.filter(score => score.fpl_points !== null).length;
-        const captainPlayerIds = new Set(scores.filter(score => score.captain_name && score.captain_multiplier !== null).map(score => score.player_id));
-        const captainCount = captainPlayerIds.size;
-        const chipCount = chips.length;
-        const missingCaptainPlayers = scorePagePlayers.filter(player => !captainPlayerIds.has(player.player_id));
-        const missingCaptainNames = missingCaptainPlayers.map(player => player.players?.name ?? `Player ${player.player_id}`);
+    const totalPlayers = scorePagePlayers.length;
+    const scoreCount =  scores.filter(score => score.fpl_points !== null).length;
+    const captainPlayerIds = new Set(scores.filter(score => score.captain_name && score.captain_multiplier !== null).map(score => score.player_id));
+    const captainCount = captainPlayerIds.size;
+    const chipCount = chips.length;
+    const missingCaptainPlayers = scorePagePlayers.filter(player => !captainPlayerIds.has(player.player_id));
+    const missingCaptainNames = missingCaptainPlayers.map(player => player.players?.name ?? `Player ${player.player_id}`);
 
-        document.getElementById("gameweekScoreStatus").textContent = `${scoreCount} / ${totalPlayers} ${scoreCount === totalPlayers ? "✓" : "⚠"}`;
+    document.getElementById("gameweekScoreStatus").textContent = `${scoreCount} / ${totalPlayers} ${scoreCount === totalPlayers ? "✓" : "⚠"}`;
 
-        const captainStatusElement = document.getElementById("gameweekCaptainStatus");
-        const captainMissingElement = document.getElementById("gameweekCaptainMissing");
+    const captainStatusElement = document.getElementById("gameweekCaptainStatus");
+    const captainMissingElement = document.getElementById("gameweekCaptainMissing");
 
-        captainStatusElement.textContent = `${captainCount} / ${totalPlayers} ${captainCount === totalPlayers ? "✓" : "⚠"}`;
+    captainStatusElement.textContent = `${captainCount} / ${totalPlayers} ${captainCount === totalPlayers ? "✓" : "⚠"}`;
 
-        if (missingCaptainNames.length > 0) {
-            captainMissingElement.textContent = `Missing: ${missingCaptainNames.join(", ")}`;
-        }
-        else {
-            captainMissingElement.textContent = "";
-        }
+    if (missingCaptainNames.length > 0) {
+        captainMissingElement.textContent = `Missing: ${missingCaptainNames.join(", ")}`;
+    }
+    else {
+        captainMissingElement.textContent = "";
+    }
 
-        document.getElementById("gameweekChipStatus").textContent = chipCount;
+    document.getElementById("gameweekChipStatus").textContent = chipCount;
 }
 
 // ==========================================
@@ -311,7 +316,7 @@ async function handleFplImport() {
     }
     finally {
         button.disabled = false;
-        button.textContent = "Import FPL Scores";
+        button.textContent = "Import Season Scores";
     }
 }
 
@@ -699,6 +704,7 @@ async function importFplPlayer(seasonId, playerId, entryId, playerName) {
 
 async function handleCaptainImport() {
 
+    console.clear();
     debugLog("scores.js: handleCaptainImport Called");
 
     const button = document.getElementById("importCaptainDataButton");
@@ -718,7 +724,7 @@ async function handleCaptainImport() {
     const statusTitle = document.getElementById("fplImportStatusTitle");
 
     if (statusTitle) {
-        statusTitle.textContent = "Captain Import";
+        statusTitle.textContent =`Captain Import for GW${selectedGameweek}`;
     }
 
     try {
@@ -730,7 +736,7 @@ async function handleCaptainImport() {
     }
     finally {
         button.disabled = false;
-        button.textContent = "Update Captains";
+        button.textContent = `Update Captains for GW${selectedGameweek}`;
     }
 }
 
@@ -745,7 +751,7 @@ async function importCaptainData(seasonId, seasonPlayers) {
     const statusTitle = document.getElementById("fplImportStatusTitle");
 
     if (statusTitle) {
-        statusTitle.textContent = "Captain Import";
+        statusTitle.textContent = `Captain Import for GW${selectedGameweek}`;
     }
 
     updateImportSummary("Preparing captain import...");
@@ -921,6 +927,7 @@ async function importCaptainData(seasonId, seasonPlayers) {
 
         let pendingJobs = [];
         let initiallySkipped = 0;
+        //const selectedGameweek = Number(document.getElementById("gameweekSelector").value);
 
         seasonPlayers.forEach(player => {
                 const playerName = player.players?.name ?? `Player ${player.player_id}`;
@@ -931,16 +938,18 @@ async function importCaptainData(seasonId, seasonPlayers) {
                     return;
                 }
 
-                const playerRows = scoreRows.filter(row => row.player_id === player.player_id);
+                const playerRows = scoreRows.filter(row => row.player_id === player.player_id && row.gameweek === selectedGameweek);
+
+                console.log("PLAYER ROWS: ", playerRows);
 
                 playerRows.forEach(row => {
-                        const captainAlreadyImported = Boolean(row.captain_name && row.captain_multiplier);
+                        //const captainAlreadyImported = Boolean(row.captain_name && row.captain_multiplier);
 
-                        if (captainAlreadyImported) {
-                            initiallySkipped++;
-                            updateImportStatus(player.player_id, playerName, "skipped", `GW${row.gameweek} already imported`);
-                            return;
-                        }
+                        //if (captainAlreadyImported) {
+                        //    initiallySkipped++;
+                        //    updateImportStatus(player.player_id, playerName, "skipped", `GW${row.gameweek} already imported`);
+                        //    return;
+                        //}
 
                         // ==================================
                         // ADD IMPORT JOB
@@ -959,7 +968,7 @@ async function importCaptainData(seasonId, seasonPlayers) {
         );
 
         if (pendingJobs.length === 0 ) {
-            updateImportSummary("Captain import complete — all captain data is already populated.");
+            updateImportSummary(`Captain import complete — no captain data for Gameweek ${selectedGameweek}.`);
             return;
         }
 
@@ -1193,13 +1202,14 @@ async function importCaptainData(seasonId, seasonPlayers) {
         // UPDATE CAPTAIN IMPORT TIMESTAMP
         // ==========================================
 
+        await loadScores(selectedGameweek);
         const captainImportTime = new Date().toISOString();
-
         await updateScoresTimestamp(captainImportTime, seasonId);
         scorePageSeason.captains_last_imported_at = captainImportTime;
         renderImportTimestamps(scorePageSeason);        
-        const selectedGameweek = Number(document.getElementById("gameweekSelector").value);
-        await updateDataPanels(currentSeasonId, selectedGameweek);
+        //const selectedGameweek = Number(document.getElementById("gameweekSelector").value);
+        //await updateDataPanels(currentSeasonId, selectedGameweek);
+        
     }
     catch(error) {
         debugLogPlayerImport("Captain import failed:", error);
