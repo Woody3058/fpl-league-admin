@@ -700,6 +700,10 @@ button:disabled {
     margin-bottom: 18px;
 }
 
+.player-add-controls button {
+    width: 200px;
+}
+
 #showAddPlayerButton {
     background: #374151;}
 
@@ -812,6 +816,10 @@ button:disabled {
     align-items: center;
     gap:10px;
     flex-wrap: wrap;
+}
+
+.season-controls button{
+    width: 200px;
 }
 
 .season-action-link {

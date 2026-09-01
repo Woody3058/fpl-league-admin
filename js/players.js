@@ -29,7 +29,6 @@ async function startupPlayers() {
 
         if (requestedSeasonId) {
             playerPageSeason = await getSeason(requestedSeasonId);
-            console.log("SEASON: ", playerPageSeason);
         }
         else {
             playerPageSeason = await getActiveSeason();
@@ -45,54 +44,18 @@ async function startupPlayers() {
 
         await loadPlayers();
 
-        console.log(
-            "Players page started successfully."
-        );
-
+        console.log("Players page started successfully.");
     }
     catch(error) {
-
-        console.error(
-            "Players page startup failed:",
-            error
-        );
-
+        console.error("Players page startup failed:", error);
     }
 
-    document
-        .getElementById(
-            "addPlayerButton"
-        )
-        .addEventListener(
-            "click",
-            addPlayer
-        );
-
-        const addSection =
-            document.getElementById(
-                "playerAddSection"
-            );
-
-
-        const addButton =
-            document.getElementById(
-                "showAddPlayerButton"
-            );
-
-
-        addSection.hidden =
-            true;
-
-
-        addButton.textContent =
-            "+ Add Player";
-
-
-        addButton.addEventListener(
-            "click",
-            toggleAddPlayerForm
-        );
-
+    document.getElementById("addPlayerButton").addEventListener("click", addPlayer);
+    const addSection = document.getElementById("playerAddSection");
+    const addButton = document.getElementById("showAddPlayerButton");
+    addSection.hidden = true;
+    addButton.textContent = "+ Add Player";
+    addButton.addEventListener("click", toggleAddPlayerForm);
 }
 
 // ==========================================
@@ -101,59 +64,32 @@ async function startupPlayers() {
 
 async function loadPlayers() {
 
-    console.log(
-        "players.js: loadPlayers Called"
-    );
+    console.log("players.js: loadPlayers Called");
 
-
-    playerPagePlayers =
-        await getAllSeasonPlayers(
-            playerPageSeason.id
-        );
-
-
-    renderPlayers(
-        playerPagePlayers
-    );
-
+    playerPagePlayers = await getAllSeasonPlayers(playerPageSeason.id);
+    renderPlayers(playerPagePlayers);
 }
 
 // ==========================================
 // RENDER PLAYERS
 // ==========================================
 
-function renderPlayers(
-    seasonPlayers
-) {
+function renderPlayers(seasonPlayers) {
 
-    const tbody =
-        document.querySelector(
-            "#playerManagementTable tbody"
-        );
+    console.log("players.js: renderPlayers Called");
 
+    const tbody = document.querySelector("#playerManagementTable tbody");
 
     tbody.innerHTML = "";
 
+    seasonPlayers.forEach(player => {
+            const row = document.createElement("tr");
 
-    seasonPlayers.forEach(
-        player => {
-
-            const row =
-                document.createElement(
-                    "tr"
-                );
-
-                if (!player.active) {
-
-                    row.classList.add(
-                        "inactive-player-row"
-                    );
-
-                }
-
+            if (!player.active) {
+                row.classList.add("inactive-player-row");
+            }
 
             row.innerHTML = `
-
                 <td>
                     <strong>
                         ${player.players?.name ?? "Unknown"}
@@ -203,295 +139,99 @@ function renderPlayers(
                     </button>
                 </td>
             `;
-
             tbody.appendChild(row );
-
         }
     );
 
-    document
-        .querySelectorAll(
-            ".save-player-button"
-        )
-        .forEach(
-            button => {
-
-                button.addEventListener(
-                    "click",
-                    () => {
-
-                        savePlayer(
-                            Number(
-                                button.dataset
-                                    .seasonPlayerId
-                            )
-                        );
-
-                    }
-                );
-
+    document.querySelectorAll(".save-player-button").forEach(button => {
+                button.addEventListener("click", () => {savePlayer(Number(button.dataset.seasonPlayerId));});
             }
         );
-
 }
 
-async function savePlayer(
-    seasonPlayerId
-) {
+async function savePlayer(seasonPlayerId) {
 
-    console.log(
-        "players.js: savePlayer Called",
-        seasonPlayerId
-    );
+    console.log("players.js: savePlayer Called");
 
+    const fplIdInput = document.querySelector(`.player-fpl-id[data-season-player-id="${seasonPlayerId}"]`);
+    const teamNameInput = document.querySelector(`.player-team-name[data-season-player-id="${seasonPlayerId}"]`);
+    const activeInput = document.querySelector(`.player-active[data-season-player-id="${seasonPlayerId}"]`);
 
-    const fplIdInput =
-        document.querySelector(
-            `.player-fpl-id[data-season-player-id="${seasonPlayerId}"]`
-        );
-
-
-    const teamNameInput =
-        document.querySelector(
-            `.player-team-name[data-season-player-id="${seasonPlayerId}"]`
-        );
-
-
-    const activeInput =
-        document.querySelector(
-            `.player-active[data-season-player-id="${seasonPlayerId}"]`
-        );
-
-
-    if (
-        !fplIdInput ||
-        !teamNameInput ||
-        !activeInput
-    ) {
-
-        console.error(
-            "Player inputs not found:",
-            seasonPlayerId
-        );
-
+    if (!fplIdInput || !teamNameInput || !activeInput) {
+        console.error("Player inputs not found:", seasonPlayerId);
         return;
-
     }
 
-
-    const fplEntryId =
-        fplIdInput.value
-            ? Number(
-                fplIdInput.value
-            )
-            : null;
-
-
-    const fplTeamName =
-        teamNameInput.value.trim();
-
-
-    const active =
-        activeInput.checked;
-
+    const fplEntryId = fplIdInput.value ? Number(fplIdInput.value) : null;
+    const fplTeamName = teamNameInput.value.trim();
+    const active = activeInput.checked;
 
     try {
-
         await saveSeasonPlayer(seasonPlayerId, fplEntryId, fplTeamName || null, active);
 
-
-        console.log(
-            "Player saved successfully."
-        );
-
-
+        console.log("Player saved successfully.");
         await loadPlayers();
-
     }
     catch(error) {
-
-        console.error(
-            "Unable to save player:",
-            error
-        );
-
-
-        alert(
-            "Unable to save player."
-        );
-
+        console.error("Unable to save player:", error);
+        alert("Unable to save player.");
     }
-
 }
 
 async function addPlayer() {
 
-    console.log(
-        "players.js: addPlayer Called"
-    );
+    console.log("players.js: addPlayer Called");
 
-
-    const nameInput =
-        document.getElementById(
-            "newPlayerName"
-        );
-
-
-    const fplIdInput =
-        document.getElementById(
-            "newPlayerFplId"
-        );
-
-
-    const teamNameInput =
-        document.getElementById(
-            "newPlayerTeamName"
-        );
-
-
-    const message =
-        document.getElementById(
-            "playerMessage"
-        );
-
-
-    const name =
-        nameInput.value.trim();
-
-
-    const fplEntryId =
-        fplIdInput.value
-            ? Number(
-                fplIdInput.value
-            )
-            : null;
-
-
-    const fplTeamName =
-        teamNameInput.value.trim();
-
-
-    message.textContent =
-        "";
-
+    const nameInput = document.getElementById("newPlayerName");
+    const fplIdInput = document.getElementById("newPlayerFplId");
+    const teamNameInput = document.getElementById("newPlayerTeamName");
+    const message = document.getElementById("playerMessage");
+    const name = nameInput.value.trim();
+    const fplEntryId = fplIdInput.value ? Number(fplIdInput.value) : null;
+    const fplTeamName = teamNameInput.value.trim();
+    message.textContent = "";
 
     if (!name) {
-
-        message.textContent =
-            "Please enter a player name.";
-
+        message.textContent = "Please enter a player name.";
         return;
-
     }
 
-
     try {
+        await addPlayerToSeason(playerPageSeason.id, name, fplEntryId, fplTeamName || null);
 
-        await addPlayerToSeason(
-
-            playerPageSeason.id,
-
-            name,
-
-            fplEntryId,
-
-            fplTeamName || null
-
-        );
-
-
-        message.textContent =
-            `${name} added successfully.`;
-
-
-        nameInput.value =
-            "";
-
-        fplIdInput.value =
-            "";
-
-        teamNameInput.value =
-            "";
-
+        message.textContent = `${name} added successfully.`;
+        nameInput.value = "";
+        fplIdInput.value = "";
+        teamNameInput.value = "";
 
         await loadPlayers();
 
-        const addSection =
-            document.getElementById(
-                "playerAddSection"
-            );
-
-
-        const addButton =
-            document.getElementById(
-                "showAddPlayerButton"
-            );
-
-
-        addSection.hidden =
-            true;
-
-
-        addButton.textContent =
-            "+ Add Player";
-
+        const addSection = document.getElementById("playerAddSection");
+        const addButton = document.getElementById("showAddPlayerButton");
+        addSection.hidden = true;
+        addButton.textContent = "+ Add Player";
     }
     catch(error) {
+        console.error("Unable to add player:", error);
 
-        console.error(
-            "Unable to add player:",
-            error
-        );
-
-
-        message.textContent =
-            error.message ??
-            "Unable to add player.";
-
+        message.textContent =  error.message ?? "Unable to add player.";
     }
-
 }
 
 function toggleAddPlayerForm() {
 
-    const section =
-        document.getElementById(
-            "playerAddSection"
-        );
+    console.log("players.js: toggleAddPlayerForm Called");
 
-
-    const button =
-        document.getElementById(
-            "showAddPlayerButton"
-        );
-
-
-    const opening =
-        section.hidden;
-
-
-    section.hidden =
-        !section.hidden;
-
-
-    button.textContent =
-        opening
-            ? "Cancel"
-            : "+ Add Player";
-
+    const section = document.getElementById("playerAddSection");
+    const button = document.getElementById("showAddPlayerButton");
+    const opening = section.hidden;
+    section.hidden = !section.hidden;
+    button.textContent = opening ? "Cancel" : "+ Add Player";
 
     if (opening) {
-
-        const firstInput =
-            section.querySelector(
-                "input"
-            );
-
-
+        const firstInput = section.querySelector("input");
         firstInput?.focus();
-
     }
-
 }
 
 function populateSeasonSelector(seasons, selectedSeasonId) {

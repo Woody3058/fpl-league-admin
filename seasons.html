@@ -83,7 +83,39 @@
 
         </div>
 
-        <section class="season-create-section">
+        <section>
+
+            <div class="season-controls">
+                <button
+                    id="showCreateSeasonButton"
+                    type="button"
+                >
+                    + Create Season
+                </button>
+
+                <button
+                    type="button"
+                >
+                    <a
+                        class="season-action-link"
+                        href="historical-import.html"
+                        
+                    >
+                    Import Historical Scores
+                    </a>
+                </button>
+            </div>
+
+            <div
+                id="seasonCreateMessage"
+            >
+            </div>
+        </section>
+
+        <section
+            id="seasonCreateSection"
+            class="season-create-section"
+            hidden>
 
             <h3>Create New Season</h3>
 
@@ -147,31 +179,12 @@
 
             </div>
 
-            <div class="season-controls">
                 <button
-                    id="createSeasonButton"
+                    id="saveSeasonButton"
                     type="button"
                 >
-                    Create Season
+                    Save Season
                 </button>
-
-                <button
-                    type="button"
-                >
-                    <a
-                        class="season-action-link"
-                        href="historical-import.html"
-                        
-                    >
-                    Import Historical Scores
-                    </a>
-                </button>
-            </div>
-
-            <div
-                id="seasonCreateMessage"
-            >
-            </div>
 
         </section>
 
