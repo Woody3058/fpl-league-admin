@@ -751,8 +751,17 @@ button:disabled {
    ========================================== */
 
 @media (max-width: 700px) {
+
+    .admin-filter {
+        width: 100%;
+    }
+    
     .player-add-section{
         max-width: none;
+        width: 100%;
+    }
+
+    .player-add-controls button {
         width: 100%;
     }
 
@@ -962,6 +971,10 @@ button:disabled {
     #seasonManagementTable {
         min-width: 820px;
     }
+
+    .season-controls button {
+        width: 100%;
+    }   
 
     #seasonManagementTable td:last-child {
         min-width: 320px;
