@@ -1,8 +1,5 @@
-
 let prizePageSeason = null;
-
 let prizePlayerCount = 0;
-
 
 // ==========================================
 // STARTUP
@@ -10,35 +7,24 @@ let prizePlayerCount = 0;
 
 async function startupPrizes() {
 
-    console.log(
-        "prizes.js: startupPrizes Called"
-    );
+    console.log("prizes.js: startupPrizes Called");
 
+    const loggedIn = await requireLogin();
+
+    if (!loggedIn)
+        return;
+
+    setActiveNavigation("prizes");
+    setupLogout();
 
     try {
 
-        const loggedIn =
-            await requireAdminLogin();
-
-
-        if (!loggedIn)
-            return;
-
-
-        setupAdminLogout();
-
-
-        setActiveAdminNavigation(
-            "prizes"
-        );
-
-
-        // ======================================
+       // ======================================
         // ACTIVE SEASON
         // ======================================
 
         prizePageSeason =
-            await getAdminActiveSeason();
+            await getActiveSeason();
 
 
         document
@@ -54,7 +40,7 @@ async function startupPrizes() {
         // ======================================
 
         prizePlayerCount =
-            await getAdminActivePlayerCount(
+            await getActivePlayerCount(
                 prizePageSeason.id
             );
 

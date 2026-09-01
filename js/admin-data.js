@@ -3,9 +3,69 @@
 // READ TABLES
 // ==========================================
 
-async function getAdminActiveSeason() {
+async function getAllSeasons() {
 
-    console.log("admin-data.js: getAdminActiveSeason Called");
+    console.log("admin-data.js: getAllSeasons Called");
+
+    const {data, error} =
+        await supabaseClient
+            .from("seasons")
+            .select(`
+                id,
+                season_code,
+                name,
+                total_gameweeks,
+                current_gameweek,
+                active
+            `)
+            .order("id", {ascending: false});
+    if (error)
+        throw error;
+
+    return data.map(row => ({
+            id: row.id,
+            seasonCode: row.season_code,
+            name: row.name,
+            totalGameweeks: row.total_gameweeks,
+            currentGameweek: row.current_gameweek,
+            active: row.active
+        })
+    );
+}
+
+async function getSeason(seasonId) {
+
+    console.log("admin-data.js: getSeason Called");
+
+    const {data, error} =
+        await supabaseClient
+            .from("seasons")
+            .select(`
+                id,
+                season_code,
+                name,
+                total_gameweeks,
+                current_gameweek,
+                active
+            `)
+            .eq("id", seasonId)
+            .single();
+    if (error)
+        throw error;
+
+    return {
+        id: data.id,
+        seasonCode: data.season_code,
+        name: data.name,
+        totalGameweeks: data.total_gameweeks,
+        currentGameweek: data.current_gameweek,
+        active: data.active
+    };
+}
+
+async function getActiveSeason() {
+
+    console.log("admin-data.js: getActiveSeason Called");
 
     const {data, error} =
         await supabaseClient
@@ -13,7 +73,6 @@ async function getAdminActiveSeason() {
             .select("*")
             .eq("active", true)
             .single();
-
     if (error)
         throw error;
 
@@ -30,9 +89,9 @@ async function getAdminActiveSeason() {
 
 }
 
-async function getAdminSeasonPlayers(seasonId) {
+async function getSeasonPlayers(seasonId) {
 
-    console.log("admin-data.js: getAdminSeasonPlayers Called");
+    console.log("admin-data.js: getSeasonPlayers Called");
 
     const {data, error} =
         await supabaseClient
@@ -49,16 +108,15 @@ async function getAdminSeasonPlayers(seasonId) {
             .eq("season_id", seasonId)
             .eq("active",true)
             .order("display_order");
-
     if (error)
         throw error;
 
     return data;
 }
 
-async function getAdminAllSeasonPlayers(seasonId) {
+async function getAllSeasonPlayers(seasonId) {
 
-    console.log("admin-data.js: getAdminAllSeasonPlayers Called");
+    console.log("admin-data.js: getAllSeasonPlayers Called");
 
     const {data, error} =
         await supabaseClient
@@ -72,25 +130,21 @@ async function getAdminAllSeasonPlayers(seasonId) {
                 players (id, name)
             `)
             .eq("season_id", seasonId);
-
     if (error)
         throw error;
 
     return data.sort((a, b) => {
-            const nameA = a.players?.name ?? "";
+        const nameA = a.players?.name ?? "";
+        const nameB = b.players?.name ??"";
 
-            const nameB = b.players?.name ??"";
-
-            return nameA.localeCompare(
-                nameB
-            );
+            return nameA.localeCompare(nameB);
         }
     );
 }
 
-async function getAdminGameweekScores(seasonId, gameweek) {
+async function getGameweekScores(seasonId, gameweek) {
 
-    console.log("admin-data.js: getAdminGameweekScores Called");
+    console.log("admin-data.js: getGameweekScores Called");
 
     const {data, error} =
         await supabaseClient
@@ -105,130 +159,12 @@ async function getAdminGameweekScores(seasonId, gameweek) {
     return data;
 }
 
-async function getAdminSeasons() {
-
-    console.log(
-        "admin-data.js: getAdminSeasons Called"
-    );
-
-
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from("seasons")
-            .select(`
-                id,
-                season_code,
-                name,
-                total_gameweeks,
-                current_gameweek,
-                active
-            `)
-            .order(
-                "id",
-                {
-                    ascending: false
-                }
-            );
-
-
-    if (error)
-        throw error;
-
-
-    return data.map(
-        row => ({
-
-            id:
-                row.id,
-
-            seasonCode:
-                row.season_code,
-
-            name:
-                row.name,
-
-            totalGameweeks:
-                row.total_gameweeks,
-
-            currentGameweek:
-                row.current_gameweek,
-
-            active:
-                row.active
-
-        })
-    );
-
-}
-
-async function getAdminSeason(
+async function setupCompetitionPeriods(
     seasonId
 ) {
 
     console.log(
-        "admin-data.js: getAdminSeason Called",
-        seasonId
-    );
-
-
-    const {
-        data,
-        error
-    } =
-        await supabaseClient
-            .from("seasons")
-            .select(`
-                id,
-                season_code,
-                name,
-                total_gameweeks,
-                current_gameweek,
-                active
-            `)
-            .eq(
-                "id",
-                seasonId
-            )
-            .single();
-
-
-    if (error)
-        throw error;
-
-
-    return {
-
-        id:
-            data.id,
-
-        seasonCode:
-            data.season_code,
-
-        name:
-            data.name,
-
-        totalGameweeks:
-            data.total_gameweeks,
-
-        currentGameweek:
-            data.current_gameweek,
-
-        active:
-            data.active
-
-    };
-
-}
-
-async function setupAdminCompetitionPeriods(
-    seasonId
-) {
-
-    console.log(
-        "admin-data.js: setupAdminCompetitionPeriods Called",
+        "admin-data.js: setupCompetitionPeriods Called",
         seasonId
     );
 
@@ -385,37 +321,22 @@ async function setupAdminCompetitionPeriods(
 
 }
 
-async function getAdminPlayers() {
+async function getPlayers() {
 
-    console.log(
-        "admin-data.js: getAdminPlayers Called"
-    );
+    console.log("admin-data.js: getPlayers Called");
 
-
-    const {
-        data,
-        error
-    } =
+    const {data, error} =
         await supabaseClient
             .from("players")
-            .select(`
-                id,
-                name
-            `)
-            .order(
-                "name"
-            );
-
-
+            .select(`id, name`)
+            .order("name");
     if (error)
         throw error;
 
-
     return data;
-
 }
 
-async function getAdminSeasonById(
+async function getSeasonById(
     seasonId
 ) {
 
@@ -447,7 +368,7 @@ async function getAdminSeasonById(
 
 }
 
-async function getAdminActivePlayerCount(
+async function getActivePlayerCount(
     seasonId
 ) {
 
@@ -482,7 +403,7 @@ async function getAdminActivePlayerCount(
 
 }
 
-async function getAdminCompetitionPeriods(
+async function getCompetitionPeriods(
     seasonId
 ) {
 
@@ -514,9 +435,9 @@ async function getAdminCompetitionPeriods(
 
 }
 
-async function getAdminSeasonChips(seasonId) {
+async function getSeasonChips(seasonId) {
 
-    debugLog("admin-data.js: getAdminSeasonChips Called");
+    debugLog("admin-data.js: getSeasonChips Called");
 
     const {data, error} =
         await supabaseClient
@@ -525,8 +446,6 @@ async function getAdminSeasonChips(seasonId) {
             .eq("season_id", seasonId);
     if (error)
         throw error;
-
-    debugLog("DATA: ", data);
 
     return data ?? [];
 }
@@ -588,13 +507,51 @@ async function getGameweekChips(seasonId, gameweek) {
     return data ?? [];
 }
 
+async function getPlayerSeasonScoreData(seasonId, playerId) {
+
+    debugLog("admin-data.js: getScoreData Called");
+
+    const {data, error} =
+        await supabaseClient
+            .from("gameweek_scores")
+            .select("gameweek, adjustment, note")
+            .eq("season_id", seasonId)
+            .eq("player_id", playerId);
+        if (error)
+            throw error;
+
+    return data ?? [];
+}
+
+async function getCaptainData(seasonId) {
+
+    debugLog("admin-data.js: getCaptainData Called");
+
+    const {data, error} =
+    await supabaseClient
+        .from("gameweek_scores")
+        .select(`
+            id,
+            player_id,
+            gameweek,
+            captain_name,
+            captain_points,
+            captain_multiplier
+        `)
+        .eq("season_id", seasonId);
+    if (error)
+        throw error;
+
+    return data ?? [];
+}
+
 // ==========================================
 // UPDATE TABLES
 // ==========================================
 
-async function saveAdminGameweekScore(seasonId, playerId, gameweek, adjustment, note) {
+async function saveGameweekScore(seasonId, playerId, gameweek, adjustment, note) {
 
-    console.log("admin-data.js: saveAdminGameweekScore Called");
+    console.log("admin-data.js: saveGameweekScore Called");
 
     const {data: existing, error: existingError} =
         await supabaseClient
@@ -642,50 +599,62 @@ async function saveAdminGameweekScore(seasonId, playerId, gameweek, adjustment, 
         throw error;
 }
 
-async function saveAdminSeasonPlayer(seasonPlayerId, fplEntryId, fplTeamName, active) {
+async function saveSeasonPlayer(seasonPlayerId, fplEntryId, fplTeamName, active) {
+
+    console.log("admin-data.js: saveSeasonPlayer Called");
 
     const {error} =
         await supabaseClient
             .from("season_players")
-            .update({
-                fpl_entry_id:
-                    fplEntryId,
-                fpl_team_name:
-                    fplTeamName,
-                active:
-                    active})
+            .update({fpl_entry_id: fplEntryId,
+                    fpl_team_name: fplTeamName,
+                    active: active})
             .eq("id", seasonPlayerId);
     if (error)
         throw error;
 }
 
-async function upsertHistoricalPeriodScores(
-    records
-) {
+async function upsertPlayerSeasonScores(scoreRows) {
 
-    console.log(
-        "admin-data.js: upsertHistoricalPeriodScores Called",
-        records.length
-    );
+    console.log("admin-data.js: upsertPlayerSeasonScores Called");
 
-
-    const {
-        error
-    } =
+    const {error} =
         await supabaseClient
-            .from("period_scores")
-            .upsert(
-                records,
-                {
-                    onConflict:
-                        "season_id,period,player_id"
-                }
-            );
+            .from("gameweek_scores")
+            .upsert(scoreRows, {onConflict: "season_id,player_id,gameweek"});
+    if (error)
+        throw error;
+}
 
+async function upsertPlayerChips(seasonId, playerId, gameweek, chip) {
 
+    console.log("admin-data.js: upsertPlayerChips Called");
+
+    const {error} =
+        await supabaseClient
+            .from("player_chips")
+            .upsert({
+                    season_id: seasonId,
+                    player_id: playerId,
+                    gameweek: gameweek,
+                    chip: chip}, {onConflict: "season_id,player_id,gameweek"}
+                );
     if (error)
         throw error;
 
+    return error ?? [];
+}
+
+async function upsertHistoricalPeriodScores(records) {
+
+    console.log("admin-data.js: upsertHistoricalPeriodScores Called");
+
+    const {error} =
+        await supabaseClient
+            .from("period_scores")
+            .upsert(records, {onConflict: "season_id,period,player_id"});
+    if (error)
+        throw error;
 }
 
 async function savePrizeSettings(
@@ -752,7 +721,7 @@ async function savePrizeSettings(
 
 }
 
-async function activateAdminSeason(
+async function activateSeason(
     seasonId
 ) {
 
@@ -774,13 +743,11 @@ async function activateAdminSeason(
 
 }
 
-// =================== FPL Scores Import =======================
+// =================== Season Scores and Captain Import =======================
 
 async function updateScoresTimestamp(importTime, seasonID) {
 
     debugLog("admin-data.js: updateScoresTimestamp Called");
-    debugLogPlayerImport("IMPORT TIME: ", importTime);
-    debugLogPlayerImport("SEASON ID: ", seasonID);
 
     const {error} =
         await supabaseClient
@@ -791,11 +758,27 @@ async function updateScoresTimestamp(importTime, seasonID) {
         throw error;
 }
 
+async function updateCaptainData(captainName, captainPoints, captainMultiplier, job) {
+
+    debugLog("admin-data.js: updateCaptainData Called");
+
+    const {error} =
+        await supabaseClient
+            .from("gameweek_scores")
+            .update({
+                captain_name: captainName,
+                captain_points: captainPoints,
+                captain_multiplier: captainMultiplier})
+            .eq("id", job.rowId);
+    if (error)
+        throw error;
+}
+
 // ==========================================
 // INSERT INTO TABLES
 // ==========================================
 
-async function createAdminSeason(
+async function createSeason(
     seasonCode,
     seasonName,
     totalGameweeks,
@@ -803,7 +786,7 @@ async function createAdminSeason(
 ) {
 
     console.log(
-        "admin-data.js: createAdminSeason Called"
+        "admin-data.js: createSeason Called"
     );
 
 
@@ -843,12 +826,12 @@ async function createAdminSeason(
 
 }
 
-async function copyAdminSeasonPlayers(
+async function copySeasonPlayers(
     targetSeasonId
 ) {
 
     console.log(
-        "admin-data.js: copyAdminSeasonPlayers Called",
+        "admin-data.js: copySeasonPlayers Called",
         targetSeasonId
     );
 
@@ -969,144 +952,68 @@ async function copyAdminSeasonPlayers(
 
 }
 
-async function addAdminPlayerToSeason(
-    seasonId,
-    name,
-    fplEntryId,
-    fplTeamName
-) {
+async function addPlayerToSeason(seasonId, name, fplEntryId, fplTeamName) {
 
-    // ==========================================
-    // CREATE / FIND MASTER PLAYER
-    // ==========================================
+    debugLog("admin-data.js: addPlayerToSeason Called");
 
-    const {
-        data: existingPlayer,
-        error: existingError
-    } =
+    const {data: existingPlayer, error: existingError} =
         await supabaseClient
             .from("players")
-            .select(`
-                id,
-                name
-            `)
-            .eq(
-                "name",
-                name
-            )
+            .select(`id, name`)
+            .eq("name", name)
             .maybeSingle();
-
-
     if (existingError)
         throw existingError;
 
-
     let playerId;
 
-
     if (existingPlayer) {
-
-        playerId =
-            existingPlayer.id;
-
+        playerId = existingPlayer.id;
     }
     else {
-
-        const {
-            data: newPlayer,
-            error: playerError
-        } =
+        const {data: newPlayer, error: playerError} =
             await supabaseClient
                 .from("players")
-                .insert({
-                    name:
-                        name
-                })
-                .select(`
-                    id,
-                    name
-                `)
+                .insert({name: name})
+                .select(`id, name`)
                 .single();
-
-
         if (playerError)
             throw playerError;
 
-
-        playerId =
-            newPlayer.id;
-
+        playerId = newPlayer.id;
     }
 
-
     // ==========================================
-    // CHECK SEASON PLAYER
+    // PLAYER ALREADY EXISTS
     // ==========================================
-
-    const {
-        data: existingSeasonPlayer,
-        error: seasonPlayerError
-    } =
+    const {data: existingSeasonPlayer, error: seasonPlayerError} =
         await supabaseClient
             .from("season_players")
             .select("id")
-            .eq(
-                "season_id",
-                seasonId
-            )
-            .eq(
-                "player_id",
-                playerId
-            )
+            .eq("season_id", seasonId)
+            .eq("player_id", playerId)
             .maybeSingle();
-
-
     if (seasonPlayerError)
         throw seasonPlayerError;
 
-
     if (existingSeasonPlayer) {
-
-        throw new Error(
-            "Player is already assigned to this season."
-        );
-
+        throw new Error("Player is already assigned to this season.");
     }
-
 
     // ==========================================
     // ADD TO SEASON
     // ==========================================
 
-    const {
-        error
-    } =
+    const {error} =
         await supabaseClient
             .from("season_players")
-            .insert({
-
-                season_id:
-                    seasonId,
-
-                player_id:
-                    playerId,
-
-                fpl_entry_id:
-                    fplEntryId,
-
-                fpl_team_name:
-                    fplTeamName,
-
-                active:
-                    true,
-
-                display_order:
-                    999
-
+            .insert({season_id: seasonId,
+                player_id: playerId,
+                fpl_entry_id: fplEntryId,
+                fpl_team_name: fplTeamName,
+                active: true,
+                display_order: 999
             });
-
-
     if (error)
         throw error;
-
 }

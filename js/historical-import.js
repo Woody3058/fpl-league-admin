@@ -1,8 +1,5 @@
-
 let historicalImportSeasons = [];
-
 let historicalImportData = null;
-
 
 // ==========================================
 // STARTUP
@@ -10,37 +7,19 @@ let historicalImportData = null;
 
 async function startupHistoricalImport() {
 
-    console.log(
-        "historical-import.js: startupHistoricalImport Called"
-    );
+    console.log("historical-import.js: startupHistoricalImport Called");
 
-    const loggedIn =
-    await requireAdminLogin();
-
+    const loggedIn = await requireLogin();
 
     if (!loggedIn)
         return;
 
-
-    setActiveAdminNavigation(
-        "scores"
-    );
-
-    setupAdminLogout();
+    setActiveNavigation("seasons");
+    setupLogout();
     
     try {
-
-        setActiveAdminNavigation(
-            "seasons"
-        );
-
-
-        historicalImportSeasons =
-            await getAdminSeasons();
-
-
+        historicalImportSeasons = await getAllSeasons();
         populateHistoricalSeasonSelector();
-
 
         // ==========================================
         // PREVIEW BUTTON
@@ -688,7 +667,7 @@ async function previewHistoricalScores() {
         // ==========================================
 
         const databasePlayers =
-            await getAdminPlayers();
+            await getPlayers();
 
 
         console.log(

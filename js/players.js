@@ -1,4 +1,3 @@
-
 let playerPageSeason = null;
 let playerPagePlayers = [];
 
@@ -8,79 +7,43 @@ let playerPagePlayers = [];
 
 async function startupPlayers() {
 
-    console.log(
-        "players.js: startupPlayers Called"
-    );
+    console.log("players.js: startupPlayers Called");
 
-    const loggedIn =
-    await requireAdminLogin();
-
+    const loggedIn = await requireLogin();
 
     if (!loggedIn)
         return;
 
-
-    setActiveAdminNavigation(
-        "scores"
-    );
-
-    setupAdminLogout();
-
+    setActiveNavigation("players");
+    setupLogout();
 
     try {
-
-        setActiveAdminNavigation(
-            "players"
-        );
-
-
         // ======================================
         // DETERMINE SEASON
         // ======================================
 
-        const params =
-            new URLSearchParams(
-                window.location.search
-            );
+        const seasons = await getAllSeasons();
 
-
-        const requestedSeasonId =
-            Number(
-                params.get(
-                    "season"
-                )
-            );
-
+        const params = new URLSearchParams(window.location.search);
+        const requestedSeasonId = Number(params.get("season"));
 
         if (requestedSeasonId) {
-
-            playerPageSeason =
-                await getAdminSeason(
-                    requestedSeasonId
-                );
-
+            playerPageSeason = await getSeason(requestedSeasonId);
+            console.log("SEASON: ", playerPageSeason);
         }
         else {
-
-            playerPageSeason =
-                await getAdminActiveSeason();
-
+            playerPageSeason = await getActiveSeason();
         }
 
-        document
-            .getElementById(
-                "playerSeasonName"
-            )
-            .textContent =
-                playerPageSeason.name;
+        populateSeasonSelector(seasons, playerPageSeason.id);
 
+        document.getElementById("playerSeasonName").textContent = playerPageSeason.name;
 
         // ======================================
         // LOAD PLAYERS
         // ======================================
 
         await loadPlayers();
-
 
         console.log(
             "Players page started successfully."
@@ -144,7 +107,7 @@ async function loadPlayers() {
 
 
     playerPagePlayers =
-        await getAdminAllSeasonPlayers(
+        await getAllSeasonPlayers(
             playerPageSeason.id
         );
 
@@ -334,7 +297,7 @@ async function savePlayer(
 
     try {
 
-        await saveAdminSeasonPlayer(seasonPlayerId, fplEntryId, fplTeamName || null, active);
+        await saveSeasonPlayer(seasonPlayerId, fplEntryId, fplTeamName || null, active);
 
 
         console.log(
@@ -424,7 +387,7 @@ async function addPlayer() {
 
     try {
 
-        await addAdminPlayerToSeason(
+        await addPlayerToSeason(
 
             playerPageSeason.id,
 
@@ -531,6 +494,25 @@ function toggleAddPlayerForm() {
 
 }
 
+function populateSeasonSelector(seasons, selectedSeasonId) {
+
+    const selector = document.getElementById("seasonSelector");
+
+    selector.innerHTML = "";
+
+    seasons.forEach(season => {const option = document.createElement("option");
+        option.value = season.id;
+        option.textContent = season.name;
+        option.selected = season.id === selectedSeasonId;
+
+        selector.appendChild(option);
+    });
+
+    selector.addEventListener("change", () => {
+        const seasonId = Number(selector.value);
+        window.location.href = `players.html?season=${seasonId}`;
+    });
+}
 
 // ==========================================
 // START

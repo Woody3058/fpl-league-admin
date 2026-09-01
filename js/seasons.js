@@ -1,6 +1,4 @@
-
 let seasonPageSeasons = [];
-
 
 // ==========================================
 // STARTUP
@@ -8,31 +6,17 @@ let seasonPageSeasons = [];
 
 async function startupSeasons() {
 
-    console.log(
-        "seasons.js: startupSeasons Called"
-    );
+    console.log("seasons.js: startupSeasons Called");
 
-    const loggedIn =
-    await requireAdminLogin();
-
+    const loggedIn = await requireLogin();
 
     if (!loggedIn)
         return;
 
-
-    setActiveAdminNavigation(
-        "scores"
-    );
-
-    setupAdminLogout();
-
+    setActiveNavigation("seasons");
+    setupLogout();
 
     try {
-
-        setActiveAdminNavigation(
-            "seasons"
-        );
-
 
         await loadSeasons();
 
@@ -62,28 +46,17 @@ async function startupSeasons() {
 
 }
 
-
 // ==========================================
 // LOAD SEASONS
 // ==========================================
 
 async function loadSeasons() {
 
-    console.log(
-        "seasons.js: loadSeasons Called"
-    );
+    console.log("seasons.js: loadSeasons Called");
 
-
-    seasonPageSeasons =
-        await getAdminSeasons();
-
-
-    renderSeasons(
-        seasonPageSeasons
-    );
-
+    seasonPageSeasons = await getAllSeasons();
+    renderSeasons(seasonPageSeasons);
 }
-
 
 // ==========================================
 // RENDER SEASONS
@@ -448,7 +421,7 @@ async function createSeason() {
 
     try {
 
-        await createAdminSeason(
+        await createSeason(
 
             seasonCode,
 
@@ -534,7 +507,7 @@ async function copyPlayers(
         // ==========================================
 
         const targetPlayers =
-            await getAdminAllSeasonPlayers(
+            await getAllSeasonPlayers(
                 seasonId
             );
 
@@ -572,7 +545,7 @@ async function copyPlayers(
         // ==========================================
 
         const count =
-            await copyAdminSeasonPlayers(
+            await copySeasonPlayers(
                 seasonId
             );
 
@@ -719,7 +692,7 @@ async function activateSeason(
         // ==========================================
 
         const season =
-            await getAdminSeasonById(
+            await getSeasonById(
                 seasonId
             );
 
@@ -740,7 +713,7 @@ async function activateSeason(
         // ==========================================
 
         const playerCount =
-            await getAdminActivePlayerCount(
+            await getActivePlayerCount(
                 seasonId
             );
 
@@ -764,7 +737,7 @@ async function activateSeason(
         // ==========================================
 
         const periods =
-            await getAdminCompetitionPeriods(
+            await getCompetitionPeriods(
                 seasonId
             );
 
@@ -865,7 +838,7 @@ async function activateSeason(
         // ACTIVATE
         // ==========================================
 
-        await activateAdminSeason(
+        await activateSeason(
             seasonId
         );
 
@@ -893,7 +866,6 @@ async function activateSeason(
     }
 
 }
-
 
 // ==========================================
 // START

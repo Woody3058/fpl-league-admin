@@ -1,4 +1,3 @@
-
 let scorePageSeason = null;
 let scorePagePlayers = [];
 let fplPlayerLookup = {};
@@ -14,19 +13,20 @@ async function startupScores() {
 
     debugLog("scores.js: startupScores Called");
 
-    const loggedIn = await requireAdminLogin();
+    const loggedIn = await requireLogin();
 
     if (!loggedIn)
         return;
 
-    setActiveAdminNavigation("scores");
-    setupAdminLogout();
+    setActiveNavigation("scores");
+    setupLogout();
 
     try {
-        scorePageSeason = await getAdminActiveSeason();
+        // Get data from Supabase tables and populate the page
+        scorePageSeason = await getActiveSeason();
         currentGameweek = Number(scorePageSeason.currentGameweek)
         currentSeasonId = scorePageSeason.id
-        scorePagePlayers = await getAdminSeasonPlayers(currentSeasonId);
+        scorePagePlayers = await getSeasonPlayers(currentSeasonId);
 
         populateGameweekSelector(scorePageSeason);
         renderImportTimestamps(scorePageSeason);
@@ -78,13 +78,12 @@ function populateGameweekSelector(season) {
 
 async function loadScores(gameweek) {
 
-    console.clear();
     debugLog("scores.js: loadScores Called");
 
     selectedGameweek = gameweek;
 
     try {
-        const scoreData = await getAdminGameweekScores(currentSeasonId, gameweek);
+        const scoreData = await getGameweekScores(currentSeasonId, gameweek);
 
         renderScores(scorePagePlayers, scoreData, gameweek);
         await updateDataPanels(currentSeasonId, gameweek, scoreData);
@@ -102,9 +101,6 @@ async function loadScores(gameweek) {
 function renderScores(seasonPlayers, scoreData, gameweek) {
 
     debugLog("scores.js: renderScores Called");
-    debugLogArgs("GAMEWEEK: ", gameweek);
-    debugLogArgs("SEASON PLAYERS: ", seasonPlayers);
-    debugLogArgs("SCORE DATA: ", scoreData);
 
     const tbody = document.querySelector("#scoreManagementTable tbody");
 
@@ -233,7 +229,7 @@ async function saveScore(playerId, gameweek) {
     const note = noteInput.value.trim();
 
     try {
-        await saveAdminGameweekScore(currentSeasonId, playerId, gameweek, adjustment, note || null);
+        await saveGameweekScore(currentSeasonId, playerId, gameweek, adjustment, note || null);
 
         console.log("Score saved successfully.");
 
@@ -633,10 +629,10 @@ async function importFplPlayer(seasonId, playerId, entryId, playerName) {
         debugLogPlayerImport("Current season gameweeks:", history.length);
 
         // ==========================================
-        // LOAD EXISTING SCORES
+        // LOAD EXISTING SCORES FROM SUPABASE
         // ==========================================
 
-        const {data: existingScores, error: existingError} =
+        /*const {data: existingScores, error: existingError} =
             await supabaseClient
                 .from("gameweek_scores")
                 .select("gameweek, adjustment, note")
@@ -644,7 +640,9 @@ async function importFplPlayer(seasonId, playerId, entryId, playerName) {
                 .eq("player_id", playerId);
 
         if (existingError)
-            throw existingError;
+            throw existingError;*/
+
+        const existingScores = await getPlayerSeasonScoreData(seasonId, playerId);
 
         // ==========================================
         // BUILD EXISTING SCORE LOOKUP
@@ -678,15 +676,16 @@ async function importFplPlayer(seasonId, playerId, entryId, playerName) {
         }
 
         // ==========================================
-        // UPSERT SCORES
+        // UPSERT SCORES TO SUPABASE
         // ==========================================
 
         if (scoreRows.length > 0) {
-            const {error: upsertError} = await supabaseClient
+            await upsertPlayerSeasonScores(scoreRows);
+            /*const {error: upsertError} = await supabaseClient
                 .from("gameweek_scores")
                 .upsert(scoreRows, {onConflict: "season_id,player_id,gameweek"});
             if (upsertError)
-                throw upsertError;
+                throw upsertError;*/
         }
 
         debugLogPlayerImport("FPL import complete for:", playerName);
@@ -814,30 +813,17 @@ async function importCaptainData(seasonId, seasonPlayers) {
             throw playersError;*/
 
 
-        // ==========================================
-        // GET SCORE ROWS
-        // ==========================================
+        // ===============================================
+        // GET CAPTAIN DATA FOR WHOLE SEASON FROM SUPBASE
+        // ===============================================
 
-        const {data: scoreRows, error: scoreError} =
-            await supabaseClient
-                .from("gameweek_scores")
-                .select(`
-                    id,
-                    player_id,
-                    gameweek,
-                    captain_name,
-                    captain_points,
-                    captain_multiplier
-                `)
-                .eq("season_id", seasonId);
-            if (scoreError)
-                throw scoreError;
+        const scoreRows = await getCaptainData(seasonId);
 
         // ==========================================
         // GET EXISTING CHIP DATA
         // ==========================================
 
-        const {data: chipRows, error: chipError} =
+        /*const {data: chipRows, error: chipError} =
             await supabaseClient
                 .from("player_chips")
                 .select(`
@@ -848,7 +834,7 @@ async function importCaptainData(seasonId, seasonPlayers) {
                 `)
                 .eq("season_id", seasonId);
             if (chipError)
-                throw chipError;
+                throw chipError;*/
 
         // ============================================
         // GET ACTUAL PLAYER NAME FROM THE FPL WEBSITE
@@ -1097,7 +1083,8 @@ async function importCaptainData(seasonId, seasonPlayers) {
                     // ==================================
 
                     if (chip) {
-                        const {error: chipSaveError} =
+                        const chipSaveError = await savePlayerChip(seasonId, job.playerId, job.gameweek, chip);
+                        /*const {error: chipSaveError} =
                             await supabaseClient
                                 .from("player_chips")
                                 .upsert({
@@ -1106,7 +1093,7 @@ async function importCaptainData(seasonId, seasonPlayers) {
                                         gameweek: job.gameweek,
                                         chip: chip},
                                     {onConflict: "season_id,player_id,gameweek"}
-                                );
+                                );*/
 
                         if (chipSaveError) {
                             console.error(`Unable to save chip for ${job.playerName} GW${job.gameweek}:`, chipSaveError);
@@ -1117,11 +1104,8 @@ async function importCaptainData(seasonId, seasonPlayers) {
 
                     }
 
-                    // ==================================
-                    // UPDATE CAPTAIN DATABASE FIELDS
-                    // ==================================
 
-                    const {error: updateError} =
+                    /*const {error: updateError} =
                         await supabaseClient
                             .from("gameweek_scores")
                             .update({
@@ -1132,7 +1116,13 @@ async function importCaptainData(seasonId, seasonPlayers) {
 
                     if (updateError) {
                         throw updateError;
-                    }
+                    }*/
+
+                    // ==================================
+                    // UPDATE CAPTAIN DATABASE FIELDS
+                    // ==================================
+
+                    await updateCaptainData(captainName, captainPoints, captainMultiplier, job.rowId);
 
                     // ==================================
                     // SUCCESS
@@ -1151,7 +1141,6 @@ async function importCaptainData(seasonId, seasonPlayers) {
                 }
                 catch(error) {
                     console.warn(`FPL captain data unavailable for ${job.playerName} GW${job.gameweek}:`, error);
-
                     failedJobs.push(job);
 
                     if (pass < maxPasses) {
@@ -1187,12 +1176,10 @@ async function importCaptainData(seasonId, seasonPlayers) {
         const failed = pendingJobs.length;
 
         updateImportSummary(`Captain import complete — ` + `Imported: ${imported}, ` + `Skipped: ${initiallySkipped}, ` + `Failed: ${failed}`);
-
         debugLogPlayerImport("Captain import complete:", {imported, skipped: initiallySkipped, failed});
 
         if (failed > 0) {
            debugLogPlayerImport("Remaining captain failures:");
-
             pendingJobs.forEach(job => { debugLogPlayerImport(`${job.playerName} GW${job.gameweek}`);});
         }
 
@@ -1221,8 +1208,6 @@ async function importCaptainData(seasonId, seasonPlayers) {
 
 function showImportStatus() {
 
-    //debugLog("scores.js: showImportStatus Called");
-
     const panel = document.getElementById("fplImportStatus");
 
     if (!panel)
@@ -1234,8 +1219,6 @@ function showImportStatus() {
 }
 
 function updateImportStatus(playerId, playerName, status, message = "") {
-
-    debugLog("scores.js: updateImportStatus Called");
 
     const container = document.getElementById("fplImportPlayers");
 
@@ -1287,8 +1270,6 @@ function updateImportStatus(playerId, playerName, status, message = "") {
 }
 
 function updateImportSummary(text) {
-
-    //debugLog("scores.js: updateImportSummary Called");
 
     const summary = document.getElementById("fplImportSummary");
 

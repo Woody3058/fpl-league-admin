@@ -18,9 +18,9 @@ function debugLogPlayerImport(...args) {
     }
 }
 
-async function requireAdminLogin() {
+async function requireLogin() {
 
-    console.log("admin-common.js: requireAdminLogin Called");
+    console.log("admin-common.js: requireLogin Called");
 
     const {data, error} = await supabaseClient.auth.getSession();
 
@@ -36,30 +36,30 @@ async function requireAdminLogin() {
     return true;
 }
 
-async function logoutAdmin() {
+async function logout() {
 
-    console.log("admin-common.js: logoutAdmin Called");
+    console.log("admin-common.js: logout Called");
 
     await supabaseClient.auth.signOut();
 
     window.location.href = "index.html";
 }
 
-function setupAdminLogout() {
+function setupLogout() {
 
-    console.log("admin-common.js: setupAdminLogout Called");
+    console.log("admin-common.js: setupLogout Called");
 
     const button = document.getElementById("logoutButton");
 
     if (!button)
         return;
 
-    button.addEventListener("click", logoutAdmin);
+    button.addEventListener("click", logout);
 }
 
-function setActiveAdminNavigation(page) {
+function setActiveNavigation(page) {
 
-    console.log("admin-common.js: setActiveAdminNavigation Called");
+    console.log("admin-common.js: setActiveNavigation Called");
 
     const links = {
         scores:

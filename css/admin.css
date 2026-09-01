@@ -353,13 +353,6 @@ input[type="checkbox"] {
     gap:10px;
     flex-wrap: wrap;
 }
-
-.score-controls {
-    display: flex;
-    align-items: center;
-    gap:10px;
-    flex-wrap: wrap;
-}
 .score-controls label {
     font-weight: 600;
 }
@@ -685,6 +678,18 @@ button:disabled {
 .admin-panel-title {
     display: flex;
     flex-direction: column;
+}
+
+.admin-filter {
+    width: 20%;
+    display: flex;
+    align-items: center;
+    gap:10px;
+    font-weight: 600;
+}
+
+#seasonSelector {
+    font-weight: 600;
 }
 
 /* ==========================================
