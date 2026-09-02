@@ -1,9 +1,6 @@
 let seasonPageSeasons = [];
 
-// ==========================================
-// STARTUP
-// ==========================================
-
+// =========================== STARTUP ============================
 async function startupSeasons() {
 
     console.log("seasons.js: startupSeasons Called");
@@ -33,9 +30,7 @@ async function startupSeasons() {
     addButton.addEventListener("click", toggleAddSeasonForm);
 }
 
-// ==========================================
-// LOAD SEASONS
-// ==========================================
+// ======================= LOAD ALL SEASONS =======================
 
 async function loadSeasons() {
 
@@ -45,9 +40,7 @@ async function loadSeasons() {
     renderSeasons(seasonPageSeasons);
 }
 
-// ==========================================
-// RENDER SEASONS
-// ==========================================
+// ======================== RENDER SEASONS ========================
 
 function renderSeasons(seasons) {
 
@@ -145,6 +138,8 @@ function renderSeasons(seasons) {
     document.querySelectorAll(".activate-season-button").forEach(button => {button.addEventListener("click", () => {validateAndActivateSeason(Number(button.dataset.seasonId));});});
 }
 
+// ===================== COPY PLAYERS BUTTON ======================
+
 async function copyPlayers(seasonId) {
 
     console.log("seasons.js: copyPlayers Called");
@@ -192,6 +187,8 @@ async function copyPlayers(seasonId) {
         alert(error.message ?? "Unable to copy players.");
     }
 }
+
+// ===================== SETUP PERIODS BUTTON =====================
 
 async function setupPeriods(seasonId, seasonName) {
 
@@ -245,6 +242,8 @@ async function setupPeriods(seasonId, seasonName) {
         alert(error.message ?? "Unable to setup competition periods.");
     }
 }
+
+// ========================== VALIDATION ==========================
 
 async function validateAndCreateSeason() {
 
@@ -420,6 +419,8 @@ async function validateAndActivateSeason(seasonId) {
     }
 }
 
+// =================== SHOW / HIDE CREATE SEASON ==================
+
 function toggleAddSeasonForm() {
 
     console.log("seasons.js: toggleAddSeasonForm Called");
@@ -435,9 +436,4 @@ function toggleAddSeasonForm() {
         firstInput?.focus();
     }
 }
-
-// ==========================================
-// START
-// ==========================================
-
-startupSeasons();
+// ============================ START =============================

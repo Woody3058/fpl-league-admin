@@ -2,15 +2,12 @@
 const loginForm = document.getElementById("loginForm");
 const loginError = document.getElementById("loginError");
 
-// ==========================================
-// CHECK EXISTING SESSION
-// ==========================================
+// ================ CHECK EXISTING SESSION ================
 
 async function checkExistingLogin() {
 
-    const {data, error} =
+    const {data, error} = 
         await supabaseClient.auth.getSession();
-
     if (error) {
         console.error("Session error:", error);
         return;
@@ -21,9 +18,7 @@ async function checkExistingLogin() {
     }
 }
 
-// ==========================================
-// LOGIN
-// ==========================================
+// ======================== LOGIN =========================
 
 loginForm.addEventListener("submit", async event => {
         event.preventDefault();
@@ -49,8 +44,6 @@ loginForm.addEventListener("submit", async event => {
     }
 );
 
-// ==========================================
-// START
-// ==========================================
+// ======================== START =========================
 
 checkExistingLogin();

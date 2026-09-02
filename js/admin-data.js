@@ -1,7 +1,5 @@
 
-// ==========================================
-// READ TABLES
-// ==========================================
+// ====================== READ TABLES ======================
 
 async function getAllSeasons() {
 
@@ -349,7 +347,7 @@ async function checkCompetitionPeriods(seasonId) {
 
 async function getSeasonChips(seasonId) {
 
-    debugLog("admin-data.js: getSeasonChips Called");
+    console.log("admin-data.js: getSeasonChips Called");
 
     const {data, error} =
         await supabaseClient
@@ -387,7 +385,7 @@ async function loadPrizeSettings(seasonId) {
 
 async function getGameweekChips(seasonId, gameweek) {
 
-    debugLog("admin-data.js: getGameweekChips Called");
+    console.log("admin-data.js: getGameweekChips Called");
 
     const {data, error} =
     await supabaseClient
@@ -403,7 +401,7 @@ async function getGameweekChips(seasonId, gameweek) {
 
 async function getPlayerSeasonScoreData(seasonId, playerId) {
 
-    debugLog("admin-data.js: getScoreData Called");
+    console.log("admin-data.js: getScoreData Called");
 
     const {data, error} =
         await supabaseClient
@@ -419,7 +417,7 @@ async function getPlayerSeasonScoreData(seasonId, playerId) {
 
 async function getCaptainData(seasonId) {
 
-    debugLog("admin-data.js: getCaptainData Called");
+    console.log("admin-data.js: getCaptainData Called");
 
     const {data, error} =
     await supabaseClient
@@ -439,9 +437,7 @@ async function getCaptainData(seasonId) {
     return data ?? [];
 }
 
-// ==========================================
-// UPDATE TABLES
-// ==========================================
+// ====================== UPDATE TABLES ======================
 
 async function saveGameweekScore(seasonId, playerId, gameweek, adjustment, note) {
 
@@ -520,25 +516,6 @@ async function upsertPlayerSeasonScores(scoreRows) {
         throw error;
 }
 
-/*async function upsertPlayerChips(seasonId, playerId, gameweek, chip) {
-
-    console.log("admin-data.js: upsertPlayerChips Called");
-
-    const {error} =
-        await supabaseClient
-            .from("player_chips")
-            .upsert({
-                    season_id: seasonId,
-                    player_id: playerId,
-                    gameweek: gameweek,
-                    chip: chip}, {onConflict: "season_id,player_id,gameweek"}
-                );
-    if (error)
-        throw error;
-
-    return error ?? [];
-}*/
-
 async function upsertHistoricalPeriodScores(records) {
 
     console.log("admin-data.js: upsertHistoricalPeriodScores Called");
@@ -586,11 +563,11 @@ async function activateSeason(seasonId) {
         throw error;
 }
 
-// =================== Season Scores and Captain Import =======================
+// ================ SCORES AND CAPTAIN IMPORT ===================
 
 async function updateScoresTimestamp(importTime, seasonID) {
 
-    debugLog("admin-data.js: updateScoresTimestamp Called");
+    console.log("admin-data.js: updateScoresTimestamp Called");
 
     const {error} =
         await supabaseClient
@@ -603,7 +580,7 @@ async function updateScoresTimestamp(importTime, seasonID) {
 
 async function updateCaptainData(captainName, captainPoints, captainMultiplier, job) {
 
-    debugLog("admin-data.js: updateCaptainData Called");
+    console.log("admin-data.js: updateCaptainData Called");
 
     const {error} =
         await supabaseClient
@@ -617,9 +594,7 @@ async function updateCaptainData(captainName, captainPoints, captainMultiplier, 
         throw error;
 }
 
-// ==========================================
-// INSERT INTO TABLES
-// ==========================================
+// =================== INSERT INTO TABLES =======================
 
 async function createSeason(seasonCode, seasonName, totalGameweeks, currentGameweek) {
 
@@ -706,7 +681,7 @@ async function copySeasonPlayers(targetSeasonId) {
 
 async function addPlayerToSeason(seasonId, name, fplEntryId, fplTeamName) {
 
-    debugLog("admin-data.js: addPlayerToSeason Called");
+    console.log("admin-data.js: addPlayerToSeason Called");
 
     const {data: existingPlayer, error: existingError} =
         await supabaseClient

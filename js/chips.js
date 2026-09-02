@@ -2,9 +2,7 @@ let chipPageSeason =  null;
 let chipPagePlayers = [];
 let chipPageData = [];
 
-// ==========================================
-// STARTUP
-// ==========================================
+// =========================== STARTUP ===========================
 
 async function startupChips() {
 
@@ -34,9 +32,7 @@ async function startupChips() {
     }
 }
 
-// ==========================================
-// GET CHIP DISPLAY NAME
-// ==========================================
+// ==================== GET CHIP DISPLAY NAME ====================
 
 function getChipDisplayName(chip) {
 
@@ -54,9 +50,7 @@ function getChipDisplayName(chip) {
     }
 }
 
-// ==========================================
-// RENDER CHIP SUMMARY
-// ==========================================
+// ===================== RENDER CHIP SUMMARY =====================
 
 function renderChipSummary() {
 
@@ -118,9 +112,7 @@ function renderChipSummary() {
     latestChipDetailsElement.textContent = `${latestChipNames.join(" / ")} · GW${latestGameweek}`;
 }
 
-// ==========================================
-// RENDER CHIP OVERVIEW
-// ==========================================
+// ===================== RENDER CHIP OVERVIEW ====================
 
 function renderChipOverview() {
 
@@ -173,16 +165,12 @@ function renderChipOverview() {
     );
 }
 
-// ==========================================
-// GET CHIP GAMEWEEK
-// ==========================================
+// ====================== GET GAMEWEEK CHIP ======================
 
 function getChipGameweek(chips, chipCode) {
 
     const matches = chips.filter(row => row.chip === chipCode).sort((a, b) =>
-                    a.gameweek -
-                    b.gameweek
-            );
+                    a.gameweek - b.gameweek);
 
     const set1 = matches[0] ? `GW${matches[0].gameweek}`: "—";
     const set2 = matches[1] ? `GW${matches[1].gameweek}`: "—";
@@ -210,8 +198,6 @@ function getChipGameweek(chips, chipCode) {
     `;
 }
 
-// ==========================================
-// START
-// ==========================================
+// ============================ START ============================
 
 startupChips();

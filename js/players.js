@@ -1,9 +1,7 @@
 let playerPageSeason = null;
 let playerPagePlayers = [];
 
-// ==========================================
-// STARTUP
-// ==========================================
+// =========================== STARTUP ===========================
 
 async function startupPlayers() {
 
@@ -58,9 +56,7 @@ async function startupPlayers() {
     addButton.addEventListener("click", toggleAddPlayerForm);
 }
 
-// ==========================================
-// LOAD PLAYERS
-// ==========================================
+// ==================== GET ALL SEASON PLAYERS ===================
 
 async function loadPlayers() {
 
@@ -70,9 +66,7 @@ async function loadPlayers() {
     renderPlayers(playerPagePlayers);
 }
 
-// ==========================================
-// RENDER PLAYERS
-// ==========================================
+// ===================== RENDER PLAYERS TABLE ====================
 
 function renderPlayers(seasonPlayers) {
 
@@ -149,6 +143,8 @@ function renderPlayers(seasonPlayers) {
         );
 }
 
+// ===================== SAVE PLAYER BUTTON ======================
+
 async function savePlayer(seasonPlayerId) {
 
     console.log("players.js: savePlayer Called");
@@ -177,6 +173,8 @@ async function savePlayer(seasonPlayerId) {
         alert("Unable to save player.");
     }
 }
+
+// ====================== ADD PLAYER BUTTON ======================
 
 async function addPlayer() {
 
@@ -234,6 +232,8 @@ function toggleAddPlayerForm() {
     }
 }
 
+// ======================= SEASON SELECTOR =======================
+
 function populateSeasonSelector(seasons, selectedSeasonId) {
 
     const selector = document.getElementById("seasonSelector");
@@ -254,8 +254,6 @@ function populateSeasonSelector(seasons, selectedSeasonId) {
     });
 }
 
-// ==========================================
-// START
-// ==========================================
+// ============================ START ============================
 
 startupPlayers();

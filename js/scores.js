@@ -5,13 +5,11 @@ let currentGameweek = 0;
 let currentSeasonId = 0;
 let selectedGameweek = 0;
 
-// ==========================================
-// STARTUP
-// ==========================================
+// =========================== STARTUP ===========================
 
 async function startupScores() {
 
-    debugLog("scores.js: startupScores Called");
+    console.log("scores.js: startupScores Called");
 
     const loggedIn = await requireLogin();
 
@@ -33,25 +31,22 @@ async function startupScores() {
         await loadScores(scorePageSeason.currentGameweek);
 
         document.getElementById("scoreSeasonName").textContent = scorePageSeason.name;
-
         document.getElementById("gameweekSelector").addEventListener("change", event => {loadScores(Number(event.target.value));});
         document.getElementById("importFplButton").addEventListener("click", handleFplImport);
         document.getElementById("importCaptainDataButton").addEventListener("click", handleCaptainImport);
 
-        debugLog("Scores page started successfully.");
+        console.log("Scores page started successfully.");
     }
     catch(error) {
         console.error("Scores page startup failed:", error);
     }
 }
 
-// ==========================================
-// GAMEWEEK SELECTOR
-// ==========================================
+// ====================== GAMEWEEK SELECTOR ======================
 
 function populateGameweekSelector(season) {
 
-    debugLog("scores.js: populateGameweekSelector Called");
+    console.log("scores.js: populateGameweekSelector Called");
 
     const selector = document.getElementById("gameweekSelector");
 
@@ -72,13 +67,11 @@ function populateGameweekSelector(season) {
     }
 }
 
-// ==========================================
-// LOAD SELECTED GAMEWEEK SCORES
-// ==========================================
+// ================ LOAD SELECTED GAMEWEEK SCORES ================
 
 async function loadScores(gameweek) {
 
-    debugLog("scores.js: loadScores Called");
+    console.log("scores.js: loadScores Called");
 
     selectedGameweek = gameweek;
 
@@ -94,13 +87,11 @@ async function loadScores(gameweek) {
     document.getElementById("importCaptainDataButton").textContent = `Update Captains for GW${selectedGameweek}`;
 }
 
-// ==========================================
-// RENDER SCORES TABLE
-// ==========================================
+// ===================== RENDER SCORES TABLE =====================
 
 function renderScores(seasonPlayers, scoreData, gameweek) {
 
-    debugLog("scores.js: renderScores Called");
+    console.log("scores.js: renderScores Called");
 
     const tbody = document.querySelector("#scoreManagementTable tbody");
 
@@ -172,13 +163,11 @@ function renderScores(seasonPlayers, scoreData, gameweek) {
         );
 }
 
-// ==========================================
-// UPDATE DATA PANELS
-// ==========================================
+// ===================== UPDATE DATA PANELS ======================
 
 async function updateDataPanels(seasonId, gameweek, scores) {
 
-    debugLog("scores.js: updateDataPanels Called");
+    console.log("scores.js: updateDataPanels Called");
 
     chips = await getGameweekChips(seasonId, gameweek);    
 
@@ -207,15 +196,11 @@ async function updateDataPanels(seasonId, gameweek, scores) {
     document.getElementById("gameweekChipStatus").textContent = chipCount;
 }
 
-// ==========================================
-// SAVE MODIFIED SCORE
-// ==========================================
+// ===================== SAVE MODIFIED SCORE =====================
 
 async function saveScore(playerId, gameweek) {
 
-    debugLog("scores.js: saveScore Called");
-    debugLogArgs("PLAYER ID: ", playerId);
-    debugLogArgs("GAMEWEEK: ", gameweek);
+    console.log("scores.js: saveScore Called");
 
     const adjustmentInput = document.querySelector(`.score-adjustment[data-player-id="${playerId}"]`);
     const noteInput = document.querySelector(`.score-note[data-player-id="${playerId}"]`);
@@ -241,14 +226,12 @@ async function saveScore(playerId, gameweek) {
     }
 }
 
-// ==========================================
-// IMPORT SCORES
-// ==========================================
+// ======================== IMPORT SCORES ========================
 
 async function handleFplImport() {
 
     console.clear();
-    debugLog("scores.js: handleFplImport Called");
+    console.log("scores.js: handleFplImport Called");
 
     const button = document.getElementById("importFplButton");
 
@@ -318,11 +301,11 @@ async function handleFplImport() {
 
 async function importAllFplPlayers() {
 
-    debugLog("scores.js: importAllFplPlayers Called");
+    console.log("scores.js: importAllFplPlayers Called");
 
-    debugLogPlayerImport("=====================================");
-    debugLogPlayerImport("Starting Score import for all players");
-    debugLogPlayerImport("=====================================");
+    console.log("=====================================");
+    console.log("Starting Score import for all players");
+    console.log("=====================================");
 
     try {
         showImportStatus();
@@ -342,7 +325,6 @@ async function importAllFplPlayers() {
         }
 
         updateImportSummary("Current gameweek confirmed. Starting player import...");
-        debugLogPlayerImport("Gameweek check complete:", gameweekValid);
 
         // ==========================================
         // GET ACTIVE SEASON
@@ -426,7 +408,7 @@ async function importAllFplPlayers() {
         // FIRST PASS
         // ==========================================
         
-        debugLogPlayerImport("Starting first import pass...");
+        console.log("Starting first import pass...");
 
         for (const player of scorePagePlayers) {
 
@@ -481,14 +463,14 @@ async function importAllFplPlayers() {
         const finalFailures = [];
 
         if (failedPlayers.length > 0) {
-            debugLogPlayerImport("=====================================");
-            debugLogPlayerImport(`First pass completed with ${failedPlayers.length} failures`);
-            debugLogPlayerImport("Waiting before second pass...");
-            debugLogPlayerImport("=====================================");
+            console.log("=====================================");
+            console.log(`First pass completed with ${failedPlayers.length} failures`);
+            console.log("Waiting before second pass...");
+            console.log("=====================================");
 
             updateImportSummary(`Retrying ${failedPlayers.length} failed player(s)...`);
             await new Promise(resolve => setTimeout(resolve, 10000));
-            debugLogPlayerImport("Starting second import pass...");
+            console.log("Starting second import pass...");
 
             for (const player of failedPlayers) {
 
@@ -520,16 +502,16 @@ async function importAllFplPlayers() {
         // FINAL SUMMARY
         // ==========================================
 
-        debugLogPlayerImport("=================================");
-        debugLogPlayerImport("FPL IMPORT COMPLETE");
-        debugLogPlayerImport("=================================");
-        debugLogPlayerImport("Imported:", imported,);
-        debugLogPlayerImport("Skipped:", skipped);
-        debugLogPlayerImport("Failed:", finalFailures.length);
+        console.log("=================================");
+        console.log("FPL IMPORT COMPLETE");
+        console.log("=================================");
+        console.log("Imported:", imported,);
+        console.log("Skipped:", skipped);
+        console.log("Failed:", finalFailures.length);
 
         if (finalFailures.length > 0) {
-            debugLogPlayerImport( "Final failed players:");
-            finalFailures.forEach(player => {debugLogPlayerImport(`${player.playerName} (${player.entryId})`);});
+            console.log( "Final failed players:");
+            finalFailures.forEach(player => {console.log(`${player.playerName} (${player.entryId})`);});
         }
 
         updateImportSummary(`Import complete — Imported: ${imported}, Skipped: ${skipped}, Failed: ${finalFailures.length}`);
@@ -549,9 +531,9 @@ async function importAllFplPlayers() {
 
 async function importFplPlayer(seasonId, playerId, entryId, playerName) {
 
-    debugLog("scores.js: importFplPlayer Called");
-    debugLog("Importing FPL player:");
-    debugLogPlayerImport("Player ID:", playerId, entryId, playerName);
+    console.log("scores.js: importFplPlayer Called");
+    console.log("Importing FPL player:");
+    console.log("Player ID:", playerId, entryId, playerName);
 
     try {
         // ==========================================
@@ -564,7 +546,7 @@ async function importFplPlayer(seasonId, playerId, entryId, playerName) {
         for (let attempt = 1; attempt <= 5; attempt++) {
 
             try {
-                debugLogPlayerImport(`FPL request attempt ${attempt} for ${entryId} ${playerName}`);
+                console.log(`FPL request attempt ${attempt} for ${entryId} ${playerName}`);
 
                 const result = await supabaseClient.functions.invoke("fpl-history", {body: {entryId: entryId}});
 
@@ -586,8 +568,7 @@ async function importFplPlayer(seasonId, playerId, entryId, playerName) {
 
                 data = result.data;
 
-                debugLogPlayerImport(`FPL request succeeded for ${entryId} on attempt ${attempt}`);
-                debugLogPlayerImport("DATA:", data);
+                console.log(`FPL request succeeded for ${entryId} on attempt ${attempt}`);
                 break;
             }
             catch (error) {
@@ -603,7 +584,7 @@ async function importFplPlayer(seasonId, playerId, entryId, playerName) {
                     const jitter = Math.floor(Math.random() * 1000);
                     const waitTime = delay + jitter;
 
-                    debugLogPlayerImport(`Waiting ${waitTime} ms before retry...`);
+                    console.log(`Waiting ${waitTime} ms before retry...`);
                     await new Promise(resolve => setTimeout(resolve, waitTime));
                 }
             }
@@ -613,7 +594,7 @@ async function importFplPlayer(seasonId, playerId, entryId, playerName) {
             throw (lastError ?? new Error("FPL request failed after retries"));
         }
 
-        debugLogPlayerImport("FPL history received for:", playerName, data);
+        console.log("FPL history received for:", playerName, data);
 
         // ==========================================
         // GET CURRENT SEASON HISTORY
@@ -622,11 +603,11 @@ async function importFplPlayer(seasonId, playerId, entryId, playerName) {
         const history = data.current;
 
         if (!Array.isArray(history) || history.length === 0) {
-            debugLogPlayerImport("No completed FPL gameweeks for", playerName);
+            console.log("No completed FPL gameweeks for", playerName);
             return false;
         }
 
-        debugLogPlayerImport("Current season gameweeks:", history.length);
+        console.log("Current season gameweeks:", history.length);
 
         // ==========================================
         // LOAD EXISTING SCORES FROM SUPABASE
@@ -661,7 +642,7 @@ async function importFplPlayer(seasonId, playerId, entryId, playerName) {
         const scoreRows = [];
 
         for (const gw of history) {
-            debugLogPlayerImport("Importing GW", gw.event, "points:", gw.points);
+            console.log("Importing GW", gw.event, "points:", gw.points);
 
             const existing = existingScoreLookup[gw.event];
 
@@ -688,7 +669,7 @@ async function importFplPlayer(seasonId, playerId, entryId, playerName) {
                 throw upsertError;*/
         }
 
-        debugLogPlayerImport("FPL import complete for:", playerName);
+        console.log("FPL import complete for:", playerName);
         return true;
     }
     catch (error) {
@@ -697,14 +678,12 @@ async function importFplPlayer(seasonId, playerId, entryId, playerName) {
     }
 }
 
-// ==========================================
-// IMPORT CAPTAINS
-// ==========================================
+// ======================= IMPORT CAPTAINS =======================
 
 async function handleCaptainImport() {
 
     console.clear();
-    debugLog("scores.js: handleCaptainImport Called");
+    console.log("scores.js: handleCaptainImport Called");
 
     const button = document.getElementById("importCaptainDataButton");
 
@@ -741,11 +720,11 @@ async function handleCaptainImport() {
 
 async function importCaptainData(seasonId, seasonPlayers) {
 
-    debugLog("scores.js: importCaptainData Called");
+    console.log("scores.js: importCaptainData Called");
 
-    debugLogPlayerImport("=======================================");
-    debugLogPlayerImport("Starting Captain import for all players");
-    debugLogPlayerImport("=======================================");
+    console.log("=======================================");
+    console.log("Starting Captain import for all players");
+    console.log("=======================================");
 
     const statusTitle = document.getElementById("fplImportStatusTitle");
 
@@ -966,10 +945,10 @@ async function importCaptainData(seasonId, seasonPlayers) {
 
             updateImportSummary(`Captain import pass ${pass} — ${pendingJobs.length} remaining`);
 
-            debugLogPlayerImport("=================================");
-            debugLogPlayerImport(`CAPTAIN IMPORT PASS ${pass}`);
-            debugLogPlayerImport(`Pending: ${pendingJobs.length}`);
-            debugLogPlayerImport("=================================");
+            console.log("=================================");
+            console.log(`CAPTAIN IMPORT PASS ${pass}`);
+            console.log(`Pending: ${pendingJobs.length}`);
+            console.log("=================================");
 
             // ======================================
             // RANDOMISE RETRY ORDER
@@ -1101,7 +1080,7 @@ async function importCaptainData(seasonId, seasonPlayers) {
                             throw chipSaveError;
                         }
 
-                        debugLogPlayerImport(`${job.playerName} GW${job.gameweek} chip saved:`, chip);
+                        console.log(`${job.playerName} GW${job.gameweek} chip saved:`, chip);
 
                     }
 
@@ -1138,7 +1117,7 @@ async function importCaptainData(seasonId, seasonPlayers) {
                     }
 
                     updateImportStatus(job.playerId, job.playerName, "success", statusText);
-                    debugLogPlayerImport(`${job.playerName} GW${job.gameweek}:`, captainName, captainPoints, captainMultiplier, chip);
+                    console.log(`${job.playerName} GW${job.gameweek}:`, captainName, captainPoints, captainMultiplier, chip);
                 }
                 catch(error) {
                     console.warn(`FPL captain data unavailable for ${job.playerName} GW${job.gameweek}:`, error);
@@ -1177,11 +1156,11 @@ async function importCaptainData(seasonId, seasonPlayers) {
         const failed = pendingJobs.length;
 
         updateImportSummary(`Captain import complete — ` + `Imported: ${imported}, ` + `Skipped: ${initiallySkipped}, ` + `Failed: ${failed}`);
-        debugLogPlayerImport("Captain import complete:", {imported, skipped: initiallySkipped, failed});
+        console.log("Captain import complete:", {imported, skipped: initiallySkipped, failed});
 
         if (failed > 0) {
-           debugLogPlayerImport("Remaining captain failures:");
-            pendingJobs.forEach(job => { debugLogPlayerImport(`${job.playerName} GW${job.gameweek}`);});
+           console.log("Remaining captain failures:");
+            pendingJobs.forEach(job => { console.log(`${job.playerName} GW${job.gameweek}`);});
         }
 
         // ==========================================
@@ -1198,14 +1177,12 @@ async function importCaptainData(seasonId, seasonPlayers) {
         
     }
     catch(error) {
-        debugLogPlayerImport("Captain import failed:", error);
+        console.log("Captain import failed:", error);
         updateImportSummary(`Captain import failed — ${error?.message ?? "Unknown error"}`);
     }
 }
 
-// ==========================================
-// IMPORT STATUS
-// ==========================================
+// ======================== IMPORT STATUS ========================
 
 function showImportStatus() {
 
@@ -1279,15 +1256,13 @@ function updateImportSummary(text) {
     }
 }
 
-// ==========================================
-// UTILS
-// ==========================================
+// ============================ UTILS ============================
 
 async function checkValidGameweek() {
 
-    debugLog("Admin.js: checkValidGameweek Called");
+    console.log("Admin.js: checkValidGameweek Called");
 
-        debugLogPlayerImport("FPL current gameweek:", currentGameweek);
+        console.log("FPL current gameweek:", currentGameweek);
 
         if (!Number.isInteger(currentGameweek) || currentGameweek < 1) {
             console.log("No active FPL gameweek yet.");
@@ -1299,7 +1274,7 @@ async function checkValidGameweek() {
 
 function renderImportTimestamps(season) {
 
-    debugLog("scores.js: renderImportTimestamps Called");
+    console.log("scores.js: renderImportTimestamps Called");
 
     const scoresElement = document.getElementById("scoresLastImported");
     const captainsElement = document.getElementById("captainsLastImported");
@@ -1315,7 +1290,7 @@ function renderImportTimestamps(season) {
 
 function formatImportTimestamp(value) {
 
-    debugLog("scores.js: formatImportTimestamp Called");
+    console.log("scores.js: formatImportTimestamp Called");
 
     if (!value)
         return "Never";
@@ -1325,7 +1300,7 @@ function formatImportTimestamp(value) {
 
 function mapFplChip(activeChip) {
 
-    debugLog("scores.js: mapFplChip Called");
+    console.log("scores.js: mapFplChip Called");
 
     switch (activeChip) {
         case "wildcard":
@@ -1341,8 +1316,6 @@ function mapFplChip(activeChip) {
     }
 }
 
-// ==========================================
-// START
-// ==========================================
+// ============================ START ============================
 
 startupScores();
