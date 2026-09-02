@@ -24,7 +24,7 @@
 
 .admin-login-brand h1 {
     margin: 0 0 8px;
-    font-size: 26px;
+    font-size: 1.625rem;
     color: #1f2937;
 }
 
@@ -93,7 +93,7 @@ body {
 
 .admin-header h1 {
     margin: 0;
-    font-size: 24px;
+    font-size: 1.5rem;
 }
 
 .admin-header button {
@@ -125,7 +125,7 @@ td {
 }
 
 th {
-    font-size: 13px;
+    font-size: 0.8125rem;
     text-transform: uppercase;
     letter-spacing: 0.03em;
     color: #52606d;
@@ -150,7 +150,7 @@ button {
     border-radius: 6px;
     background: #374151;
     color: white;    
-    font-size: 14px;
+    font-size: 0.875rem;
     font-weight: 600;
     cursor: pointer;
     text-decoration: none;
@@ -176,7 +176,7 @@ button:hover {
     margin: 24px auto 50px;
     border: 1px solid #dfe3e8;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    font-size: 18px;
+    font-size: 1.125rem;
 }
 
 .admin-navigation a {
@@ -263,7 +263,7 @@ select {
     padding: 9px 10px;
     border: 1px solid #cbd2d9;
     border-radius: 5px;
-    font-size: 14px;
+    font-size: 0.875rem;
     background: white;
 }
 
@@ -288,7 +288,7 @@ input[type="checkbox"] {
     }
 
     .admin-header h1 {
-        font-size: 20px;
+        font-size: 1.25rem;
     }
 
     .admin-navigation {
@@ -379,7 +379,7 @@ button:disabled {
     display: flex;
     gap: 24px;
     margin-top: 12px;
-    font-size: 13px;
+    font-size: 0.8125rem;
     color: #666;
 }
 
@@ -500,19 +500,19 @@ button:disabled {
 .gameweek-data-status-item span {
     display: block;
     margin-bottom: 5px;
-    font-size: 16px;
+    font-size: 1.0rem;
     color: #777;
 }
 
 .gameweek-data-status-item strong {
     display: block;
-    font-size: 16px;
+    font-size: 1.0rem;
 }
 
 .gameweek-data-status-detail {
     display:  block;
     margin-top: 6px;
-    font-size: 12px;
+    font-size: 0.75rem;
     color: #777;
     line-height: 1.4;
 }
@@ -531,7 +531,7 @@ button:disabled {
 }
 
 .score-total {
-    font-size: 16px;
+    font-size: 1.0rem;
 }
 
 .score-adjusted-row {
@@ -614,19 +614,19 @@ button:disabled {
 .chip-summary-card span {
     display: block;
     margin-bottom: 5px;
-    font-size: 12px;
+    font-size: 0.75rem;
     color: #777;
 }
 
 .chip-summary-card strong {
     display: block;
-    font-size: 18px;
+    font-size: 1.125rem;
 }
 
 .chip-summary-card small {
     display: block;
     margin-top: 6px;
-    font-size: 12px;
+    font-size: 0.75rem;
     color: #777;
 }
 
@@ -654,13 +654,13 @@ button:disabled {
 }
 
 .chip-set span {
-    font-size: 11px;
+    font-size: 0.6875rem;
     color: #888;
 }
 
 .chip-set strong {
     min-width: 34px;
-    font-size: 13px;
+    font-size: 0.8125rem;
 }
 
 /* ==========================================
@@ -837,7 +837,7 @@ button:disabled {
     border-radius: 6px;
     background: #374151;
     color: white;    
-    font-size: 14px;
+    font-size: 0.875rem;
     font-weight: 600;
     cursor: pointer;
     text-decoration: none;
@@ -944,7 +944,7 @@ button:disabled {
 
 .historical-map-status {
     margin-top: 3px;
-    font-size: 12px;
+    font-size: 0.75rem;
     color: #64748b;
 }
 
@@ -1029,13 +1029,13 @@ button:disabled {
 
 .prize-settings-summary-grid span,
 .prize-preview-grid span {
-    font-size: 13px;
+    font-size: 0.8125rem;
     color: #666;
 }
 
 .prize-settings-summary-grid strong,
 .prize-preview-grid strong {
-    font-size: 22px;
+    font-size: 1.375rem;
 }
 
 .prize-preview-grid {
@@ -1055,7 +1055,7 @@ button:disabled {
 
 .prize-percent-total {
     margin: 18px 0;
-    font-size: 18px;
+    font-size: 1.125rem;
 }
 
 .prize-percent-total strong {
