@@ -436,4 +436,6 @@ function toggleAddSeasonForm() {
         firstInput?.focus();
     }
 }
+
 // ============================ START =============================
+startupSeasons();
