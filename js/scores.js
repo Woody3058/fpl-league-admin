@@ -1000,6 +1000,7 @@ async function importCaptainData(seasonId, seasonPlayers) {
                             }
                             catch {
                                 // Ignore response parsing errors
+                                console.warn("Could not read Edge Function error body");
                             }
                         }
                         throw captainResult.error;

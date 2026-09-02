@@ -612,7 +612,7 @@ async function updateCaptainData(captainName, captainPoints, captainMultiplier, 
                 captain_name: captainName,
                 captain_points: captainPoints,
                 captain_multiplier: captainMultiplier})
-            .eq("id", job.rowId);
+            .eq("id", job);
     if (error)
         throw error;
 }
