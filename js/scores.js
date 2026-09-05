@@ -26,6 +26,8 @@ async function startupScores() {
         currentSeasonId = scorePageSeason.id
         scorePagePlayers = await getSeasonPlayers(currentSeasonId);
 
+        console.log(currentGameweek);
+
         populateGameweekSelector(scorePageSeason);
         renderImportTimestamps(scorePageSeason);
         await loadScores(scorePageSeason.currentGameweek);
@@ -249,6 +251,42 @@ async function handleFplImport() {
     document.getElementById("fplImportStatusTitle").textContent = "FPL Score Import";
 
     try {
+
+        // ==========================================
+        // GET CURRENT FPL GAMEWEEK
+        // ==========================================
+
+        const lookupResult = await supabaseClient.functions.invoke("fpl-history", {
+            body: {requestType: "currentGameweek"}
+        });
+
+        if (lookupResult.error)
+            throw lookupResult.error;
+
+        const currentGameweek = Number(lookupResult.data.currentGameweek);
+
+        console.log("FPL current gameweek:", currentGameweek);
+
+        if (currentGameweek > 0) {
+            const {error: gameweekUpdateError} = await supabaseClient
+                .from("seasons")
+                .update({current_gameweek: currentGameweek})
+                .eq("id", scorePageSeason.id);
+
+            if (gameweekUpdateError)
+                throw gameweekUpdateError;
+
+            scorePageSeason.current_gameweek = currentGameweek;
+        }
+
+        // ==========================================
+        // IMPORT PLAYER SCORES
+        // ==========================================
+
+
+
+
+        
         const result = await importAllFplPlayers();
 
         if (!result)
@@ -625,6 +663,8 @@ async function importFplPlayer(seasonId, playerId, entryId, playerName) {
 
         const existingScores = await getPlayerSeasonScoreData(seasonId, playerId);
 
+        console.log(existingScores);
+
         // ==========================================
         // BUILD EXISTING SCORE LOOKUP
         // ==========================================
@@ -642,15 +682,29 @@ async function importFplPlayer(seasonId, playerId, entryId, playerName) {
         const scoreRows = [];
 
         for (const gw of history) {
-            console.log("Importing GW", gw.event, "points:", gw.points);
+            //console.log("Importing GW", gw.event, "points:", gw.points);
 
             const existing = existingScoreLookup[gw.event];
+
+            const transferCost = Number(gw.event_transfers_cost) || 0;
+            const gameweekPoints = Number(gw.points) - transferCost;
+
+             console.log(
+                "Importing GW",
+                gw.event,
+                "points:",
+                gw.points,
+                "transfer cost:",
+                gw.event_transfers_cost,
+                "net:",
+                gameweekPoints
+            );
 
             scoreRows.push({
                 season_id: seasonId,
                 player_id: playerId,
                 gameweek: gw.event,
-                fpl_points: gw.points,
+                fpl_points: gameweekPoints,
                 adjustment: existing?.adjustment ?? 0,
                 note: existing?.note ?? null
             });
@@ -832,6 +886,8 @@ async function importCaptainData(seasonId, seasonPlayers) {
                 updateImportSummary(`Loading FPL player information — attempt ${attempt}...`);
 
                 const lookupResult = await supabaseClient.functions.invoke("fpl-history", {body: {requestType: "currentGameweek"}});
+
+                console.log("Current GW result:", lookupResult);
 
                 if (lookupResult.error) {
                     if (lookupResult.error.context) {
