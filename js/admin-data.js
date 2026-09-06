@@ -437,6 +437,25 @@ async function getCaptainData(seasonId) {
     return data ?? [];
 }
 
+async function savePlayerChip(seasonId, playerId, gameweek, chip) {
+
+    console.log("admin-data.js: savePlayerChip Called");
+
+    const {error} =
+        await supabaseClient
+            .from("player_chips")
+            .upsert({
+                season_id: seasonId,
+                player_id: playerId,
+                gameweek: gameweek,
+                chip: chip
+            }, {
+                onConflict: "season_id,player_id,gameweek"
+            });
+
+    return error;
+}
+
 // ====================== UPDATE TABLES ======================
 
 async function saveGameweekScore(seasonId, playerId, gameweek, adjustment, note) {
