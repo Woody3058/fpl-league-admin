@@ -687,24 +687,25 @@ async function importFplPlayer(seasonId, playerId, entryId, playerName) {
             const existing = existingScoreLookup[gw.event];
 
             const transferCost = Number(gw.event_transfers_cost) || 0;
-            const gameweekPoints = Number(gw.points) - transferCost;
+            const netGameweekPoints = Number(gw.points) - transferCost
 
-             console.log(
+            console.log(
                 "Importing GW",
                 gw.event,
                 "points:",
                 gw.points,
                 "transfer cost:",
-                gw.event_transfers_cost,
-                "net:",
-                gameweekPoints
+                transferCost,
+                "net season contribution:",
+                netGameweekPoints
             );
 
             scoreRows.push({
                 season_id: seasonId,
                 player_id: playerId,
                 gameweek: gw.event,
-                fpl_points: gameweekPoints,
+                fpl_points: Number(gw.points) || 0,
+                transfer_cost: Number(gw.event_transfers_cost) || 0,
                 adjustment: existing?.adjustment ?? 0,
                 note: existing?.note ?? null
             });

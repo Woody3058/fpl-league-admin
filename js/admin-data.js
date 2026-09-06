@@ -482,6 +482,7 @@ async function saveGameweekScore(seasonId, playerId, gameweek, adjustment, note)
                 player_id: playerId,
                 gameweek: gameweek,
                 fpl_points: 0,
+                transfer_cost: 0,
                 adjustment: adjustment,
                 note: note
             });
