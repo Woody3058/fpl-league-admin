@@ -99,7 +99,17 @@ function renderScores(seasonPlayers, scoreData, gameweek) {
 
     tbody.innerHTML = "";
 
-    seasonPlayers.forEach(player => {const score = scoreData.find(row => row.player_id === player.player_id);
+    const sortedPlayers = [...seasonPlayers].sort((a, b) => {
+        const scoreA = scoreData.find(row => row.player_id === a.player_id);
+        const scoreB = scoreData.find(row => row.player_id === b.player_id);
+
+        const pointsA = Number(scoreA?.fpl_points) || 0;
+        const pointsB = Number(scoreB?.fpl_points) || 0;
+
+        return pointsB - pointsA || a.players.name.localeCompare(b.players.name);
+    });
+
+    sortedPlayers.forEach(player => {const score = scoreData.find(row => row.player_id === player.player_id);
 
             const fplPoints = Number(score?.fpl_points) || 0;
             const adjustment = Number(score?.adjustment) || 0;
@@ -363,76 +373,6 @@ async function importAllFplPlayers() {
         }
 
         updateImportSummary("Current gameweek confirmed. Starting player import...");
-
-        // ==========================================
-        // GET ACTIVE SEASON
-        // ==========================================
-
-        /*const {data: season, error: seasonError} =
-            await supabaseClient
-                .from("seasons")
-                .select("*")
-                .eq(
-                    "active",
-                    true
-                )
-                .single();
-
-
-        if (seasonError)
-            throw seasonError;*/
-
-
-        // ==========================================
-        // GET ACTIVE PLAYERS
-        // ==========================================
-
-        /*const {
-            data: seasonPlayers,
-            error: playersError
-        } =
-            await supabaseClient
-                .from("season_players")
-                .select(`
-                    id,
-                    player_id,
-                    fpl_entry_id,
-                    players (
-                        id,
-                        name
-                    )
-                `)
-                .eq(
-                    "season_id",
-                    season.id
-                )
-                .eq(
-                    "active",
-                    true
-                )
-                .order(
-                    "display_order"
-                );
-
-
-        if (playersError)
-            throw playersError;*/
-
-        // ==========================================
-        // LOAD FPL PLAYER LOOKUP
-        // ==========================================
-
-        /*const fplPlayerLookup =
-            await getFplPlayerLookup();*/
-
-
-        // ==========================================
-        // GAMEWEEK LIVE DATA CACHE
-        // ==========================================
-
-        //const gameweekLiveCache =
-        //    {};
-
 
         // ==========================================
         // COUNTERS
@@ -790,85 +730,11 @@ async function importCaptainData(seasonId, seasonPlayers) {
     updateImportSummary("Preparing captain import...");
 
     try {
-        // ==========================================
-        // GET ACTIVE SEASON
-        // ==========================================
-
-        /*const {
-            data: season,
-            error: seasonError
-        } =
-            await supabaseClient
-                .from(
-                    "seasons"
-                )
-                .select("*")
-                .eq(
-                    "active",
-                    true
-                )
-                .single();
-
-
-        if (seasonError)
-            throw seasonError;
-
-
-        // ==========================================
-        // GET ACTIVE PLAYERS
-        // ==========================================
-
-        const {
-            data: seasonPlayers,
-            error: playersError
-        } =
-            await supabaseClient
-                .from(
-                    "season_players"
-                )
-                .select(`
-                    player_id,
-                    fpl_entry_id,
-                    players (
-                        name
-                    )
-                `)
-                .eq(
-                    "season_id",
-                    season.id
-                )
-                .eq(
-                    "active",
-                    true
-                );
-
-
-        if (playersError)
-            throw playersError;*/
-
-
         // ===============================================
         // GET CAPTAIN DATA FOR WHOLE SEASON FROM SUPBASE
         // ===============================================
 
         const scoreRows = await getCaptainData(seasonId);
-
-        // ==========================================
-        // GET EXISTING CHIP DATA
-        // ==========================================
-
-        /*const {data: chipRows, error: chipError} =
-            await supabaseClient
-                .from("player_chips")
-                .select(`
-                    id,
-                    player_id,
-                    gameweek,
-                    chip
-                `)
-                .eq("season_id", seasonId);
-            if (chipError)
-                throw chipError;*/
 
         // ============================================
         // GET ACTUAL PLAYER NAME FROM THE FPL WEBSITE
